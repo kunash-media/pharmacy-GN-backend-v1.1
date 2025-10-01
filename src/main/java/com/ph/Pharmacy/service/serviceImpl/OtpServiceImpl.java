@@ -1,166 +1,126 @@
 package com.ph.Pharmacy.service.serviceImpl;
 
-import com.ph.Pharmacy.dto.request.OtpRequestDto;
-import com.ph.Pharmacy.dto.response.OtpResponseDto;
+import com.ph.Pharmacy.bcrypt.BcryptEncoderConfig;
+import com.ph.Pharmacy.dto.request.OtpVerificationDto;
 import com.ph.Pharmacy.entity.AdminEntity;
 import com.ph.Pharmacy.entity.OtpEntity;
 import com.ph.Pharmacy.entity.UserEntity;
 import com.ph.Pharmacy.repository.AdminRepository;
-import com.ph.Pharmacy.repository.UserRepository;
 import com.ph.Pharmacy.repository.OtpRepository;
+import com.ph.Pharmacy.repository.UserRepository;
+import com.ph.Pharmacy.service.EmailService;
 import com.ph.Pharmacy.service.OtpService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+
 import java.util.Random;
 
 @Service
 public class OtpServiceImpl implements OtpService {
-    private static final Logger logger = LoggerFactory.getLogger(OtpServiceImpl.class);
 
-    @Autowired
-    private OtpRepository otpRepository;
+    private final UserRepository userRepository;
+    private final AdminRepository adminRepository;
+    private final OtpRepository otpRepository;
+    private final BcryptEncoderConfig passwordEncoder;
+    private final EmailService emailService;
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private AdminRepository adminRepository;
+    public OtpServiceImpl(UserRepository userRepository, AdminRepository adminRepository,
+                          OtpRepository otpRepository, BcryptEncoderConfig passwordEncoder,
+                          EmailService emailService) {
+        this.userRepository = userRepository;
+        this.adminRepository = adminRepository;
+        this.otpRepository = otpRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
+    }
 
     @Override
-    public OtpResponseDto generateOtp(OtpRequestDto requestDto) {
-        logger.info("Generating OTP for userId: {}, purpose: {}", requestDto.getUserId(), requestDto.getPurpose());
+    @Transactional
+    public void sendOtpEmail(String email) {
+        // Clean expired OTPs
+        otpRepository.deleteExpiredOtps(LocalDateTime.now());
 
-        String otpCode = generateRandomOtp();
-
-        // Fetch actual entities from database
-        UserEntity user = userRepository.findById(requestDto.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + requestDto.getUserId()));
-
+        // Find user or admin
+        UserEntity user = userRepository.findByEmail(email);
         AdminEntity admin = null;
-        if (requestDto.getAdminId() != null) {
-            admin = adminRepository.findById(requestDto.getAdminId())
-                    .orElseThrow(() -> new RuntimeException("Admin not found with id: " + requestDto.getAdminId()));
+
+        if (user == null) {
+            admin = adminRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User/Admin not found with email: " + email));
         }
 
-        OtpEntity otpEntity = new OtpEntity();
-        otpEntity.setUser(user);
-        otpEntity.setAdmin(admin);
-        otpEntity.setOtpCode(otpCode);
-        otpEntity.setMobileNumber(requestDto.getMobile());
-        otpEntity.setExpiresAt(LocalDateTime.now().plusMinutes(30));
-        otpEntity.setEmail(requestDto.getEmail());
-        otpEntity.setPurpose(requestDto.getPurpose());
-        otpEntity.setCreatedAt(LocalDateTime.now());
-        otpEntity.setUsed(false);
+        // Delete previous OTPs for this email
+        otpRepository.deleteByEmail(email);
 
-        OtpEntity savedEntity = otpRepository.save(otpEntity);
-        logger.info("OTP generated and saved with id: {}", savedEntity.getId());
+        // Generate 6-digit OTP
+        String otp = String.format("%06d", new Random().nextInt(999999));
+        String hashedOtp = passwordEncoder.encode(otp);
 
-        return mapToResponseDto(savedEntity);
+        // Create and save OTP
+        OtpEntity otpEntity = new OtpEntity(
+                user, admin, hashedOtp, null,
+                LocalDateTime.now().plusMinutes(5), email, "PASSWORD_RESET"
+        );
+
+        otpRepository.save(otpEntity);
+
+        // Send OTP via Email
+        String subject = "Your OTP for Password Reset";
+        String message = "Your OTP is: " + otp + ". Valid for 5 minutes.";
+        emailService.sendOtpEmail(email, subject, message);
     }
 
     @Override
-    public OtpResponseDto verifyOtp(OtpRequestDto requestDto) {
-        logger.info("Verifying OTP for code: {}, userId: {}", requestDto.getOtpCode(), requestDto.getUserId());
+    @Transactional
+    public boolean verifyEmailOtp(OtpVerificationDto otpVerificationDto) {
+        // Clean expired OTPs
+        otpRepository.deleteExpiredOtps(LocalDateTime.now());
 
-        Optional<OtpEntity> otpEntityOptional = otpRepository.findByOtpCodeAndUserIdAndIsUsedFalse(
-                requestDto.getOtpCode(), requestDto.getUserId());
+        String email = otpVerificationDto.getEmail();
+        List<OtpEntity> validOtps = otpRepository.findValidEmailOtps(email, LocalDateTime.now());
 
-        if (otpEntityOptional.isPresent()) {
-            OtpEntity otpEntity = otpEntityOptional.get();
-            if (otpEntity.getExpiresAt().isAfter(LocalDateTime.now())) {
-                otpEntity.setUsed(true);
-                otpRepository.save(otpEntity);
-                logger.info("OTP verified successfully for id: {}", otpEntity.getId());
-                return mapToResponseDto(otpEntity);
-            } else {
-                logger.warn("OTP expired for id: {}", otpEntity.getId());
+        if (validOtps.isEmpty()) {
+            return false;
+        }
+
+        // Check if any OTP matches
+        boolean otpMatched = validOtps.stream()
+                .anyMatch(otp -> passwordEncoder.matches(otpVerificationDto.getOtp(), otp.getOtpCode()));
+
+        if (otpMatched) {
+            // Find user or admin
+            UserEntity user = userRepository.findByEmail(email);
+            AdminEntity admin = null;
+
+            if (user == null) {
+                admin = adminRepository.findByEmail(email)
+                        .orElseThrow(() -> new RuntimeException("User/Admin not found"));
             }
-        } else {
-            logger.warn("Invalid OTP or already used for code: {}", requestDto.getOtpCode());
+
+            // Update password if provided
+            if (otpVerificationDto.getNewPassword() != null && !otpVerificationDto.getNewPassword().isEmpty()) {
+                String encodedPassword = passwordEncoder.encode(otpVerificationDto.getNewPassword());
+                if (user != null) {
+                    user.setPassword(encodedPassword);
+                    userRepository.save(user);
+                } else if (admin != null) {
+                    admin.setPassword(encodedPassword);
+                    adminRepository.save(admin);
+                }
+            }
+
+            // Mark OTPs as used
+            validOtps.forEach(otp -> {
+                otp.setUsed(true);
+                otpRepository.save(otp);
+            });
+
+            return true;
         }
 
-        return null; // Return null so controller can handle 400 response
-    }
-
-    // Additional method to support controller's current signature
-    public OtpResponseDto verifyOtp(String otpCode, Long userId) {
-        OtpRequestDto requestDto = new OtpRequestDto();
-        requestDto.setOtpCode(otpCode);
-        requestDto.setUserId(userId);
-        return verifyOtp(requestDto);
-    }
-
-    @Override
-    public OtpResponseDto getOtpById(Long id) {
-        Optional<OtpEntity> otpEntity = otpRepository.findById(id);
-        if (otpEntity.isPresent()) {
-            return mapToResponseDto(otpEntity.get());
-        }
-        return null;
-    }
-
-    @Override
-    public List<OtpResponseDto> getAllOtps() {
-        List<OtpEntity> otpEntities = otpRepository.findAll();
-        return otpEntities.stream()
-                .map(this::mapToResponseDto)
-                .toList();
-    }
-
-    @Override
-    public List<OtpResponseDto> getOtpsByUserId(Long userId) {
-        List<OtpEntity> otpEntities = otpRepository.findByUserId(userId);
-        return otpEntities.stream()
-                .map(this::mapToResponseDto)
-                .toList();
-    }
-
-    @Override
-    public void deleteExpiredOtps() {
-        List<OtpEntity> expiredOtps = otpRepository.findByExpiresAtBefore(LocalDateTime.now());
-        otpRepository.deleteAll(expiredOtps);
-        logger.info("Deleted {} expired OTPs", expiredOtps.size());
-    }
-
-    @Override
-    public OtpResponseDto markOtpAsUsed(String otpCode) {
-        Optional<OtpEntity> otpEntityOptional = otpRepository.findByOtpCodeAndIsUsedFalse(otpCode);
-        if (otpEntityOptional.isPresent()) {
-            OtpEntity otpEntity = otpEntityOptional.get();
-            otpEntity.setUsed(true);
-            otpRepository.save(otpEntity);
-            logger.info("OTP marked as used for code: {}", otpCode);
-            return mapToResponseDto(otpEntity);
-        }
-        return null;
-    }
-
-    private String generateRandomOtp() {
-        Random random = new Random();
-        int otp = 100000 + random.nextInt(900000);
-        return String.valueOf(otp);
-    }
-
-    private OtpResponseDto mapToResponseDto(OtpEntity entity) {
-        OtpResponseDto responseDto = new OtpResponseDto();
-        responseDto.setId(entity.getId());
-        responseDto.setUserId(entity.getUser() != null ? entity.getUser().getUserId() : null);
-        // CHANGE THIS LINE - Replace getAdminId() with getId()
-        responseDto.setAdminId(entity.getAdmin() != null ? entity.getAdmin().getId() : null);
-        responseDto.setOtpCode(entity.getOtpCode());
-        responseDto.setMobile(entity.getMobileNumber());
-        responseDto.setEmail(entity.getEmail());
-        responseDto.setPurpose(entity.getPurpose());
-        responseDto.setCreatedAt(entity.getCreatedAt());
-        responseDto.setExpiresAt(entity.getExpiresAt());
-        responseDto.setUsed(entity.isUsed());
-        return responseDto;
+        return false;
     }
 }

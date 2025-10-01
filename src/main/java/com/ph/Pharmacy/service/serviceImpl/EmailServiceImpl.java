@@ -1,5 +1,4 @@
 package com.ph.Pharmacy.service.serviceImpl;
-
 import com.ph.Pharmacy.service.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -212,14 +211,17 @@ public class EmailServiceImpl implements EmailService {
                 "<body>" +
                 "<div class='container'>" +
                 "<div class='header'>" +
-                "<img src='cid:logo' alt='PharmacyLogo' class='logo' onerror='this.style.display=\"none\"; document.querySelector(\".company-name\").style.display=\"block\";'>" +
+                "<img src='cid:logo' alt='Pharmacy Logo' class='logo' onerror='this.style.display=\"none\"; document.querySelector(\".company-name\").style.display=\"block\";'>" +
                 "<div class='company-name'>Good Neews</div>" +
                 "<div class='title'>Order Placed Successfully!</div>" +
-                "<div class='subtitle'>Thank you for your order from Good Neews! 💊</div>" +
+                "<div class='subtitle'>Thank you for your order from Good Neews!</div>" +
                 "</div>" +
 
-                "<div class='content'>" +
-                "<div class='greeting'>" + "We're happy to provide your family with quality healthcare items. Your well-being is our priority. 💊" + "</div>" +
+                "<div class='content'>"+
+                "<div class='greeting'>"+
+                "We're dedicated to providing you with quality medications and personalized care! Your health and well-being are our priority. ✨"+
+                "</div>"+
+                "</div>"+
 
                 "<div class='customer-greeting'>" +
                 "Hi <span class='customer-name'>" + customerName + "</span>," +
@@ -244,9 +246,9 @@ public class EmailServiceImpl implements EmailService {
                 "<div class='divider'>•••</div>" +
 
                 "<div class='closing'>" +
-                "<div class='happy-shopping'><span class='shopping-bag'>💊</span> Wishing you good health! <span class='party-emoji'>❤️👍</span></div>" +
-                "<div class='contact-info'>Your health is our priority. If you have any questions about your order or medications, please don't hesitate to contact us.</div>" +
-                "</div>"+
+                "<div class='happy-shopping'><span class='shopping-bag'>🛒</span> Wishing you health and wellness with every prescription! <span class='party-emoji'></span></div>" +
+                "<div class='contact-info'>If you have any questions, feel free to reach out anytime.</div>" +
+                "</div>" +
 
                 "<div class='footer'>" +
                 "<p>&copy; 2025 Good Neews. All rights reserved.</p>" +

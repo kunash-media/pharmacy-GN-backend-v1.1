@@ -1,8 +1,10 @@
 package com.ph.Pharmacy.dto.request;
 
-public class OtpRequestDto {
+public class OtpVerificationDto {
     private String mobile;
     private String email;
+    private String otp;
+    private String newPassword;
 
     // Getters and Setters
     public String getMobile() { return mobile; }
@@ -10,4 +12,10 @@ public class OtpRequestDto {
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+
+    public String getOtp() { return otp; }
+    public void setOtp(String otp) { this.otp = otp; }
+
+    public String getNewPassword() { return newPassword; }
+    public void setNewPassword(String newPassword) { this.newPassword = newPassword; }
 }

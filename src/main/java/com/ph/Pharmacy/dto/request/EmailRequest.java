@@ -1,5 +1,6 @@
 package com.ph.Pharmacy.dto.request;
 
+// Simple DTO for email request
 public class EmailRequest {
     private String email;
 
