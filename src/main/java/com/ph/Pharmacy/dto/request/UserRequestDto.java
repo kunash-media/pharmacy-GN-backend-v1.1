@@ -2,94 +2,37 @@ package com.ph.Pharmacy.dto.request;
 
 
 public class UserRequestDto {
-    private String name;
-    private String whatsappNumber;
+
+    private String firstName;
+    private String lastName;
     private String email;
+    private String phone;
     private String password;
-    private AddressDto address;
+    private String addressLandmark;
+    private String addressArea;
+    private String addressCity;
+    private String addressPincode;
+    private String addressState;
+    private String addressCountry;
+    private String addressType;
 
-    public static class AddressDto {
-        private String landmark;
-        private String area;
-        private String city;
-        private String pincode;
-        private String state;
-        private String country;
-        private String addressType;
-
-        // Getters and Setters for AddressDto
-        public String getLandmark() {
-            return landmark;
-        }
-
-        public void setLandmark(String landmark) {
-            this.landmark = landmark;
-        }
-
-        public String getArea() {
-            return area;
-        }
-
-        public void setArea(String area) {
-            this.area = area;
-        }
-
-        public String getCity() {
-            return city;
-        }
-
-        public void setCity(String city) {
-            this.city = city;
-        }
-
-        public String getPincode() {
-            return pincode;
-        }
-
-        public void setPincode(String pincode) {
-            this.pincode = pincode;
-        }
-
-        public String getState() {
-            return state;
-        }
-
-        public void setState(String state) {
-            this.state = state;
-        }
-
-        public String getCountry() {
-            return country;
-        }
-
-        public void setCountry(String country) {
-            this.country = country;
-        }
-
-        public String getAddressType() {
-            return addressType;
-        }
-
-        public void setAddressType(String addressType) {
-            this.addressType = addressType;
-        }
-    }
 
     // Getters and Setters for UserRequestDto
-    public String getName() {
-        return name;
+
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public String getWhatsappNumber() {
-        return whatsappNumber;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setWhatsappNumber(String whatsappNumber) {
-        this.whatsappNumber = whatsappNumber;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getEmail() {
@@ -100,6 +43,14 @@ public class UserRequestDto {
         this.email = email;
     }
 
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
     public String getPassword() {
         return password;
     }
@@ -108,11 +59,59 @@ public class UserRequestDto {
         this.password = password;
     }
 
-    public AddressDto getAddress() {
-        return address;
+    public String getAddressLandmark() {
+        return addressLandmark;
     }
 
-    public void setAddress(AddressDto address) {
-        this.address = address;
+    public void setAddressLandmark(String addressLandmark) {
+        this.addressLandmark = addressLandmark;
+    }
+
+    public String getAddressArea() {
+        return addressArea;
+    }
+
+    public void setAddressArea(String addressArea) {
+        this.addressArea = addressArea;
+    }
+
+    public String getAddressCity() {
+        return addressCity;
+    }
+
+    public void setAddressCity(String addressCity) {
+        this.addressCity = addressCity;
+    }
+
+    public String getAddressPincode() {
+        return addressPincode;
+    }
+
+    public void setAddressPincode(String addressPincode) {
+        this.addressPincode = addressPincode;
+    }
+
+    public String getAddressState() {
+        return addressState;
+    }
+
+    public void setAddressState(String addressState) {
+        this.addressState = addressState;
+    }
+
+    public String getAddressCountry() {
+        return addressCountry;
+    }
+
+    public void setAddressCountry(String addressCountry) {
+        this.addressCountry = addressCountry;
+    }
+
+    public String getAddressType() {
+        return addressType;
+    }
+
+    public void setAddressType(String addressType) {
+        this.addressType = addressType;
     }
 }

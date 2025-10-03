@@ -1,11 +1,15 @@
 package com.ph.Pharmacy.service.serviceImpl;
 
 
+import com.ph.Pharmacy.bcrypt.BcryptEncoderConfig;
 import com.ph.Pharmacy.dto.request.AdminRequestDto;
 import com.ph.Pharmacy.dto.response.AdminResponseDto;
 import com.ph.Pharmacy.entity.AdminEntity;
 import com.ph.Pharmacy.repository.AdminRepository;
 import com.ph.Pharmacy.service.AdminService;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,91 +17,81 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class AdminServiceImpl implements AdminService {
+
+    private final Logger logger = LoggerFactory.getLogger(AdminServiceImpl.class);
 
     @Autowired
     private AdminRepository adminRepository;
+    private final BcryptEncoderConfig bcryptEncoderConfig;
+
+    public AdminServiceImpl(AdminRepository adminRepository, BcryptEncoderConfig bcryptEncoderConfig){
+        this.adminRepository = adminRepository;
+        this.bcryptEncoderConfig= bcryptEncoderConfig;
+    }
 
     @Override
     public AdminResponseDto createAdmin(AdminRequestDto adminRequestDto) {
+        logger.debug("Creating new admin with email: {}", adminRequestDto.getEmail());
         AdminEntity adminEntity = convertToEntity(adminRequestDto);
         AdminEntity savedAdmin = adminRepository.save(adminEntity);
+        logger.debug("Admin saved with ID: {}", savedAdmin.getId());
         return convertToResponseDto(savedAdmin);
     }
 
     @Override
     public AdminResponseDto getAdminById(Long id) {
+        logger.debug("Fetching admin by ID: {}", id);
         AdminEntity adminEntity = adminRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Admin not found with id: " + id));
+                .orElseThrow(() -> {
+                    logger.error("Admin not found with id: {}", id);
+                    return new RuntimeException("Admin not found with id: " + id);
+                });
         return convertToResponseDto(adminEntity);
     }
 
     @Override
     public AdminResponseDto getAdminByEmail(String email) {
+        logger.debug("Fetching admin by email: {}", email);
         AdminEntity adminEntity = adminRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Admin not found with email: " + email));
+                .orElseThrow(() -> {
+                    logger.error("Admin not found with email: {}", email);
+                    return new RuntimeException("Admin not found with email: " + email);
+                });
         return convertToResponseDto(adminEntity);
     }
 
     @Override
     public AdminResponseDto getAdminByPhoneNumber(String phoneNumber) {
+        logger.debug("Fetching admin by phone number: {}", phoneNumber);
         AdminEntity adminEntity = adminRepository.findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new RuntimeException("Admin not found with phone number: " + phoneNumber));
+                .orElseThrow(() -> {
+                    logger.error("Admin not found with phone number: {}", phoneNumber);
+                    return new RuntimeException("Admin not found with phone number: " + phoneNumber);
+                });
         return convertToResponseDto(adminEntity);
     }
 
     @Override
     public List<AdminResponseDto> getAllAdmins() {
+        logger.debug("Fetching all admins");
         List<AdminEntity> admins = adminRepository.findAll();
+        logger.debug("Found {} admins", admins.size());
         return admins.stream()
                 .map(this::convertToResponseDto)
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public List<AdminResponseDto> getAdminsByFirstName(String firstName) {
-        List<AdminEntity> admins = adminRepository.findByFirstName(firstName);
-        return admins.stream()
-                .map(this::convertToResponseDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<AdminResponseDto> getAdminsByLastName(String lastName) {
-        List<AdminEntity> admins = adminRepository.findByLastName(lastName);
-        return admins.stream()
-                .map(this::convertToResponseDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<AdminResponseDto> getAdminsByFullName(String firstName, String lastName) {
-        List<AdminEntity> admins = adminRepository.findByFirstNameAndLastName(firstName, lastName);
-        return admins.stream()
-                .map(this::convertToResponseDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<AdminResponseDto> getAdminsByEmailDomain(String domain) {
-        List<AdminEntity> admins = adminRepository.findByEmailDomain(domain);
-        return admins.stream()
-                .map(this::convertToResponseDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<AdminResponseDto> getAdminsByPhonePattern(String pattern) {
-        List<AdminEntity> admins = adminRepository.findByPhoneNumberPattern(pattern);
-        return admins.stream()
-                .map(this::convertToResponseDto)
-                .collect(Collectors.toList());
-    }
 
     @Override
     public AdminResponseDto updateAdmin(Long id, AdminRequestDto adminRequestDto) {
+        logger.debug("Updating admin with ID: {}", id);
         AdminEntity existingAdmin = adminRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Admin not found with id: " + id));
+                .orElseThrow(() -> {
+                    logger.error("Admin not found with id: {}", id);
+                    return new RuntimeException("Admin not found with id: " + id);
+                });
 
         // Update all fields
         existingAdmin.setFirstName(adminRequestDto.getFirstName());
@@ -105,16 +99,44 @@ public class AdminServiceImpl implements AdminService {
         existingAdmin.setPhoneNumber(adminRequestDto.getPhoneNumber());
         existingAdmin.setEmail(adminRequestDto.getEmail());
         existingAdmin.setPassword(adminRequestDto.getPassword());
-        existingAdmin.setConfirmPassword(adminRequestDto.getConfirmPassword());
 
         AdminEntity updatedAdmin = adminRepository.save(existingAdmin);
+        logger.debug("Admin updated successfully with ID: {}", id);
         return convertToResponseDto(updatedAdmin);
     }
 
     @Override
+    public boolean changePassword(Long id, String oldPassword, String newPassword) {
+        log.debug("Changing password for admin ID: {}", id);
+
+        AdminEntity adminEntity = adminRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.error("Admin not found with ID: {}", id);
+                    return new RuntimeException("Admin not found with ID: " + id);
+                });
+
+        // Verify old password
+        if (!bcryptEncoderConfig.matches(oldPassword, adminEntity.getPassword())) {
+            log.debug("Old password verification failed for admin ID: {}", id);
+            return false;
+        }
+
+        // Set new password
+        adminEntity.setPassword(bcryptEncoderConfig.encode(newPassword));
+        adminRepository.save(adminEntity);
+
+        log.debug("Password updated successfully for admin ID: {}", id);
+        return true;
+    }
+
+    @Override
     public AdminResponseDto updateAdminPartial(Long id, AdminRequestDto adminRequestDto) {
+        logger.debug("Patching admin with ID: {}", id);
         AdminEntity existingAdmin = adminRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Admin not found with id: " + id));
+                .orElseThrow(() -> {
+                    logger.error("Admin not found with id: {}", id);
+                    return new RuntimeException("Admin not found with id: " + id);
+                });
 
         // Update only non-null fields
         if (adminRequestDto.getFirstName() != null) {
@@ -132,29 +154,32 @@ public class AdminServiceImpl implements AdminService {
         if (adminRequestDto.getPassword() != null) {
             existingAdmin.setPassword(adminRequestDto.getPassword());
         }
-        if (adminRequestDto.getConfirmPassword() != null) {
-            existingAdmin.setConfirmPassword(adminRequestDto.getConfirmPassword());
-        }
 
         AdminEntity updatedAdmin = adminRepository.save(existingAdmin);
+        logger.debug("Admin patched successfully with ID: {}", id);
         return convertToResponseDto(updatedAdmin);
     }
 
     @Override
     public void deleteAdmin(Long id) {
+        logger.debug("Deleting admin with ID: {}", id);
         if (!adminRepository.existsById(id)) {
+            logger.error("Admin not found with id: {}", id);
             throw new RuntimeException("Admin not found with id: " + id);
         }
         adminRepository.deleteById(id);
+        logger.debug("Admin deleted successfully with ID: {}", id);
     }
 
     @Override
     public boolean existsByEmail(String email) {
+        logger.debug("Checking if email exists: {}", email);
         return adminRepository.existsByEmail(email);
     }
 
     @Override
     public boolean existsByPhoneNumber(String phoneNumber) {
+        logger.debug("Checking if phone number exists: {}", phoneNumber);
         return adminRepository.existsByPhoneNumber(phoneNumber);
     }
 
@@ -165,8 +190,11 @@ public class AdminServiceImpl implements AdminService {
         entity.setLastName(requestDto.getLastName());
         entity.setPhoneNumber(requestDto.getPhoneNumber());
         entity.setEmail(requestDto.getEmail());
-        entity.setPassword(requestDto.getPassword());
-        entity.setConfirmPassword(requestDto.getConfirmPassword());
+
+        if (requestDto.getPassword() != null && !requestDto.getPassword().isEmpty()) {
+            entity.setPassword(bcryptEncoderConfig.encode(requestDto.getPassword()));
+        }
+
         return entity;
     }
 
@@ -179,7 +207,6 @@ public class AdminServiceImpl implements AdminService {
         responseDto.setPhoneNumber(entity.getPhoneNumber());
         responseDto.setEmail(entity.getEmail());
         responseDto.setPassword(entity.getPassword());
-        responseDto.setConfirmPassword(entity.getConfirmPassword());
         return responseDto;
     }
 }

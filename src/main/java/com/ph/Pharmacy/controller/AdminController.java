@@ -3,6 +3,9 @@ package com.ph.Pharmacy.controller;
 import com.ph.Pharmacy.dto.request.AdminRequestDto;
 import com.ph.Pharmacy.dto.response.AdminResponseDto;
 import com.ph.Pharmacy.service.AdminService;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,99 +15,77 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/admins")
+@Slf4j
 public class AdminController {
 
     @Autowired
     private AdminService adminService;
 
-    @PostMapping("/create-Admin")
+    private final Logger logger = LoggerFactory.getLogger(AdminController.class);
+
+    @PostMapping("/create-admin")
     public ResponseEntity<AdminResponseDto> createAdmin(@RequestBody AdminRequestDto adminRequestDto) {
+        logger.info("Request received to create admin with email: {}", adminRequestDto.getEmail());
         AdminResponseDto responseDto = adminService.createAdmin(adminRequestDto);
+        logger.info("Admin created successfully with ID: {}", responseDto.getId());
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/get-admin-by-id/{id}")
     public ResponseEntity<AdminResponseDto> getAdminById(@PathVariable Long id) {
+        logger.info("Request received to get admin by ID: {}", id);
         AdminResponseDto responseDto = adminService.getAdminById(id);
+        logger.info("Admin retrieved successfully with ID: {}", id);
         return ResponseEntity.ok(responseDto);
     }
 
-    @GetMapping("/email/{email}")
+    @GetMapping("/get-by-email/{email}")
     public ResponseEntity<AdminResponseDto> getAdminByEmail(@PathVariable String email) {
+        logger.info("Request received to get admin by email: {}", email);
         AdminResponseDto responseDto = adminService.getAdminByEmail(email);
+        logger.info("Admin retrieved successfully with email: {}", email);
         return ResponseEntity.ok(responseDto);
     }
 
-    @GetMapping("/phone/{phoneNumber}")
+    @GetMapping("/get-by-phone/{phoneNumber}")
     public ResponseEntity<AdminResponseDto> getAdminByPhoneNumber(@PathVariable String phoneNumber) {
+        logger.info("Request received to get admin by phone number: {}", phoneNumber);
         AdminResponseDto responseDto = adminService.getAdminByPhoneNumber(phoneNumber);
+        logger.info("Admin retrieved successfully with phone number: {}", phoneNumber);
         return ResponseEntity.ok(responseDto);
     }
 
-    @GetMapping("/get-All-Admins")
+    @GetMapping("/get-all-admins")
     public ResponseEntity<List<AdminResponseDto>> getAllAdmins() {
+        logger.info("Request received to get all admins");
         List<AdminResponseDto> admins = adminService.getAllAdmins();
+        logger.info("Retrieved {} admins successfully", admins.size());
         return ResponseEntity.ok(admins);
     }
 
-    @GetMapping("/first-name/{firstName}")
-    public ResponseEntity<List<AdminResponseDto>> getAdminsByFirstName(@PathVariable String firstName) {
-        List<AdminResponseDto> admins = adminService.getAdminsByFirstName(firstName);
-        return ResponseEntity.ok(admins);
-    }
-
-    @GetMapping("/last-name/{lastName}")
-    public ResponseEntity<List<AdminResponseDto>> getAdminsByLastName(@PathVariable String lastName) {
-        List<AdminResponseDto> admins = adminService.getAdminsByLastName(lastName);
-        return ResponseEntity.ok(admins);
-    }
-
-    @GetMapping("/full-name/{firstName}/{lastName}")
-    public ResponseEntity<List<AdminResponseDto>> getAdminsByFullName(@PathVariable String firstName, @PathVariable String lastName) {
-        List<AdminResponseDto> admins = adminService.getAdminsByFullName(firstName, lastName);
-        return ResponseEntity.ok(admins);
-    }
-
-    @GetMapping("/email-domain/{domain}")
-    public ResponseEntity<List<AdminResponseDto>> getAdminsByEmailDomain(@PathVariable String domain) {
-        List<AdminResponseDto> admins = adminService.getAdminsByEmailDomain(domain);
-        return ResponseEntity.ok(admins);
-    }
-
-    @GetMapping("/phone-pattern/{pattern}")
-    public ResponseEntity<List<AdminResponseDto>> getAdminsByPhonePattern(@PathVariable String pattern) {
-        List<AdminResponseDto> admins = adminService.getAdminsByPhonePattern(pattern);
-        return ResponseEntity.ok(admins);
-    }
-
-    @PutMapping("/{id}")
+    @PutMapping("/put-admin-by-id/{id}")
     public ResponseEntity<AdminResponseDto> updateAdmin(@PathVariable Long id, @RequestBody AdminRequestDto adminRequestDto) {
+        logger.info("Request received to update admin with ID: {}", id);
         AdminResponseDto responseDto = adminService.updateAdmin(id, adminRequestDto);
+        logger.info("Admin updated successfully with ID: {}", id);
         return ResponseEntity.ok(responseDto);
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/patch-admin-by-id/{id}")
     public ResponseEntity<AdminResponseDto> updateAdminPartial(@PathVariable Long id, @RequestBody AdminRequestDto adminRequestDto) {
+        logger.info("Request received to patch admin with ID: {}", id);
         AdminResponseDto responseDto = adminService.updateAdminPartial(id, adminRequestDto);
+        logger.info("Admin patched successfully with ID: {}", id);
         return ResponseEntity.ok(responseDto);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAdmin(@PathVariable Long id) {
+    @DeleteMapping("/delete-admin-by-id/{id}")
+    public ResponseEntity<String> deleteAdmin(@PathVariable Long id) {
+        logger.info("Request received to delete admin with ID: {}", id);
         adminService.deleteAdmin(id);
-        return ResponseEntity.noContent().build();
+        logger.info("Admin deleted successfully with ID: {}", id);
+        return ResponseEntity.status(HttpStatus.OK).body("Admin Deleted!! with ID :" + id);
     }
 
-    @GetMapping("/exists/email/{email}")
-    public ResponseEntity<Boolean> existsByEmail(@PathVariable String email) {
-        boolean exists = adminService.existsByEmail(email);
-        return ResponseEntity.ok(exists);
-    }
-
-    @GetMapping("/exists/phone/{phoneNumber}")
-    public ResponseEntity<Boolean> existsByPhoneNumber(@PathVariable String phoneNumber) {
-        boolean exists = adminService.existsByPhoneNumber(phoneNumber);
-        return ResponseEntity.ok(exists);
-    }
 }
 

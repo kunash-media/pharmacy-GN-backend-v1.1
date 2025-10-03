@@ -26,20 +26,16 @@ public class AdminEntity {
     @Column(name = "password")
     private String password;
 
-    @Column(name = "confirm_password")
-    private String confirmPassword;
-
     // Default constructor
     public AdminEntity() {}
 
     // Parameterized constructor
-    public AdminEntity(String firstName, String lastName, String phoneNumber, String email, String password, String confirmPassword) {
+    public AdminEntity(String firstName, String lastName, String phoneNumber, String email, String password) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.password = password;
-        this.confirmPassword = confirmPassword;
     }
 
     // Getters and Setters
@@ -91,12 +87,5 @@ public class AdminEntity {
         this.password = password;
     }
 
-    public String getConfirmPassword() {
-        return confirmPassword;
-    }
-
-    public void setConfirmPassword(String confirmPassword) {
-        this.confirmPassword = confirmPassword;
-    }
 }
 

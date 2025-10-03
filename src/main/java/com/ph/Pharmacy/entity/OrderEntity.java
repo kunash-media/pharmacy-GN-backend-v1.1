@@ -4,8 +4,9 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "orders")
+@Table(name = "orders_table")
 public class OrderEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderId;

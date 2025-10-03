@@ -5,7 +5,7 @@ public class UserResponseDto {
     private Long userId;
     private String firstName;
     private String lastName;
-    private String whatsappNumber;
+    private String phone;
     private String email;
     private String addressLandmark;
     private String addressArea;
@@ -40,12 +40,12 @@ public class UserResponseDto {
         this.lastName = lastName;
     }
 
-    public String getWhatsappNumber() {
-        return whatsappNumber;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setWhatsappNumber(String whatsappNumber) {
-        this.whatsappNumber = whatsappNumber;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getEmail() {

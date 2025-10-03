@@ -8,7 +8,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class PharmacyApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(PharmacyApplication.class, args);
 
 		// Load .env file
 		Dotenv dotenv = Dotenv.configure()
@@ -20,6 +19,7 @@ public class PharmacyApplication {
 				System.setProperty(entry.getKey(), entry.getValue())
 		);
 
+		SpringApplication.run(PharmacyApplication.class, args);
 
 	}
 

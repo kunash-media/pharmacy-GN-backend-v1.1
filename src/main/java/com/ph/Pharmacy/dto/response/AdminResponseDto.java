@@ -8,20 +8,18 @@ public class AdminResponseDto {
     private String phoneNumber;
     private String email;
     private String password;
-    private String confirmPassword;
 
     // Default constructor
     public AdminResponseDto() {}
 
     // Parameterized constructor
-    public AdminResponseDto(Long id, String firstName, String lastName, String phoneNumber, String email, String password, String confirmPassword) {
+    public AdminResponseDto(Long id, String firstName, String lastName, String phoneNumber, String email, String password) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.password = password;
-        this.confirmPassword = confirmPassword;
     }
 
     // Getters and Setters
@@ -73,12 +71,5 @@ public class AdminResponseDto {
         this.password = password;
     }
 
-    public String getConfirmPassword() {
-        return confirmPassword;
-    }
-
-    public void setConfirmPassword(String confirmPassword) {
-        this.confirmPassword = confirmPassword;
-    }
 }
 

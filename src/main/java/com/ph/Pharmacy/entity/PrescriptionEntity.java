@@ -6,10 +6,13 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Entity
-@Table(name = "prescriptions")
+@Table(name = "prescriptions_table")
 public class PrescriptionEntity {
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
+
     private String patientName;
     private String doctorName;
     private LocalDate date;

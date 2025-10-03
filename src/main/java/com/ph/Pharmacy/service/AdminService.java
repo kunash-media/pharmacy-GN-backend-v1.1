@@ -17,16 +17,6 @@ public interface AdminService {
 
     List<AdminResponseDto> getAllAdmins();
 
-    List<AdminResponseDto> getAdminsByFirstName(String firstName);
-
-    List<AdminResponseDto> getAdminsByLastName(String lastName);
-
-    List<AdminResponseDto> getAdminsByFullName(String firstName, String lastName);
-
-    List<AdminResponseDto> getAdminsByEmailDomain(String domain);
-
-    List<AdminResponseDto> getAdminsByPhonePattern(String pattern);
-
     AdminResponseDto updateAdmin(Long id, AdminRequestDto adminRequestDto);
 
     AdminResponseDto updateAdminPartial(Long id, AdminRequestDto adminRequestDto);
@@ -36,5 +26,7 @@ public interface AdminService {
     boolean existsByEmail(String email);
 
     boolean existsByPhoneNumber(String phoneNumber);
+
+    boolean changePassword(Long id, String oldPassword, String newPassword);
 }
 

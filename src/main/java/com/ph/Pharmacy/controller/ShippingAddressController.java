@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/shipping-addresses")
+@RequestMapping("/api/shipping")
 public class ShippingAddressController {
 
     @Autowired
@@ -23,55 +23,55 @@ public class ShippingAddressController {
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
-    @GetMapping("/get-Shipping-Address-By-Id/{id}")
+    @GetMapping("/get-shipping-address-by-id/{id}")
     public ResponseEntity<ShippingAddressResponseDto> getShippingAddressById(@PathVariable Long id) {
         ShippingAddressResponseDto responseDto = shippingAddressService.getShippingAddressById(id);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
-    @GetMapping("/get-All-Shipping-Addresses")
+    @GetMapping("/get-all-shipping-addresses")
     public ResponseEntity<List<ShippingAddressResponseDto>> getAllShippingAddresses() {
         List<ShippingAddressResponseDto> responseDtos = shippingAddressService.getAllShippingAddresses();
         return new ResponseEntity<>(responseDtos, HttpStatus.OK);
     }
 
-    @GetMapping("/get-Shipping-Address-By-User-Id/user/{userId}")
+    @GetMapping("/get-shipping-address-by-user-id/user/{userId}")
     public ResponseEntity<List<ShippingAddressResponseDto>> getShippingAddressByUserId(@PathVariable Long userId) {
         List<ShippingAddressResponseDto> responseDtos = shippingAddressService.getShippingAddressByUserId(userId);
         return new ResponseEntity<>(responseDtos, HttpStatus.OK);
     }
 
-    @GetMapping("/get-Shipping-Address-By-City/city/{city}")
+    @GetMapping("/get-shipping-address-by-city/{city}")
     public ResponseEntity<List<ShippingAddressResponseDto>> getShippingAddressByCity(@PathVariable String city) {
         List<ShippingAddressResponseDto> responseDtos = shippingAddressService.getShippingAddressByCity(city);
         return new ResponseEntity<>(responseDtos, HttpStatus.OK);
     }
 
-    @GetMapping("/get-Shipping-Address-By-State/state/{state}")
+    @GetMapping("/get-shipping-address-by-state/{state}")
     public ResponseEntity<List<ShippingAddressResponseDto>> getShippingAddressByState(@PathVariable String state) {
         List<ShippingAddressResponseDto> responseDtos = shippingAddressService.getShippingAddressByState(state);
         return new ResponseEntity<>(responseDtos, HttpStatus.OK);
     }
 
-    @GetMapping("/get-Shipping-Address-By-Country/country/{country}")
+    @GetMapping("/get-shipping-address-by-country/{country}")
     public ResponseEntity<List<ShippingAddressResponseDto>> getShippingAddressByCountry(@PathVariable String country) {
         List<ShippingAddressResponseDto> responseDtos = shippingAddressService.getShippingAddressByCountry(country);
         return new ResponseEntity<>(responseDtos, HttpStatus.OK);
     }
 
-    @GetMapping("/get-Shipping-Address-By-Customer-Email/customer-email/{email}")
+    @GetMapping("/get-shipping-address-by-customer-email/{email}")
     public ResponseEntity<List<ShippingAddressResponseDto>> getShippingAddressByCustomerEmail(@PathVariable String email) {
         List<ShippingAddressResponseDto> responseDtos = shippingAddressService.getShippingAddressByCustomerEmail(email);
         return new ResponseEntity<>(responseDtos, HttpStatus.OK);
     }
 
-    @PutMapping("/update-Shipping-Address/{id}")
+    @PutMapping("/update-shipping-address/{id}")
     public ResponseEntity<ShippingAddressResponseDto> updateShippingAddress(@PathVariable Long id, @RequestBody ShippingAddressRequestDto requestDto) {
         ShippingAddressResponseDto responseDto = shippingAddressService.updateShippingAddress(id, requestDto);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
-    @DeleteMapping("/delete-Shipping-Address/{id}")
+    @DeleteMapping("/delete-shipping-address/{id}")
     public ResponseEntity<String> deleteShippingAddress(@PathVariable Long id) {
         shippingAddressService.deleteShippingAddress(id);
         return new ResponseEntity<>("Shipping address deleted successfully", HttpStatus.OK);
