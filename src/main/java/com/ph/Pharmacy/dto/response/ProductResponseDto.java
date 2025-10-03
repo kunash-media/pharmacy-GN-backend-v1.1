@@ -1,87 +1,101 @@
 package com.ph.Pharmacy.dto.response;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
 public class ProductResponseDto {
 
-    private Long id;
-    private String name;
-    private String category;
-    private String subcategory;
-    private Double price;
-    private Integer stock;
-    private String status;
-    private String description;
+    private Long productId;                  // UPDATED: from id
+    private String productName;              // UPDATED: from name
+    private String productCategory;          // UPDATED: from category
+    private String productSubCategory;       // UPDATED: from subcategory
+    private BigDecimal productPrice;         // UPDATED: from Double to BigDecimal
+    private BigDecimal productOldPrice;      // ADDED: new field
+    private Integer productStock;            // UPDATED: from stock
+    private String productStatus;            // UPDATED: from status
+    private String productDescription;       // UPDATED: from description
     private LocalDateTime createdAt;
-    private String mainImage; // URL path, e.g., "/api/products/{id}/image"
-    private List<String> subImages; // URL paths, e.g., ["/api/products/{id}/subimage/0", "/api/products/{id}/subimage/1"]
-    private Map<String, String> dynamicFields;
+    private Integer productQuantity;
+    private String productMainImage;         // UPDATED: from mainImage (URL string)
+    private List<String> productSubImages;   // UPDATED: from subImages (URL strings)
+    private Map<String, String> productDynamicFields;  // UPDATED: from dynamicFields
 
-    // Getters and setters
-    public Long getId() {
-        return id;
+    // Default constructor
+    public ProductResponseDto() {}
+
+    // Getters and Setters
+    public Long getProductId() {
+        return productId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setProductId(Long productId) {
+        this.productId = productId;
     }
 
-    public String getName() {
-        return name;
+    public String getProductName() {
+        return productName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setProductName(String productName) {
+        this.productName = productName;
     }
 
-    public String getCategory() {
-        return category;
+    public String getProductCategory() {
+        return productCategory;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setProductCategory(String productCategory) {
+        this.productCategory = productCategory;
     }
 
-    public String getSubcategory() {
-        return subcategory;
+    public String getProductSubCategory() {
+        return productSubCategory;
     }
 
-    public void setSubcategory(String subcategory) {
-        this.subcategory = subcategory;
+    public void setProductSubCategory(String productSubCategory) {
+        this.productSubCategory = productSubCategory;
     }
 
-    public Double getPrice() {
-        return price;
+    public BigDecimal getProductPrice() {
+        return productPrice;
     }
 
-    public void setPrice(Double price) {
-        this.price = price;
+    public void setProductPrice(BigDecimal productPrice) {
+        this.productPrice = productPrice;
     }
 
-    public Integer getStock() {
-        return stock;
+    public BigDecimal getProductOldPrice() {
+        return productOldPrice;
     }
 
-    public void setStock(Integer stock) {
-        this.stock = stock;
+    public void setProductOldPrice(BigDecimal productOldPrice) {
+        this.productOldPrice = productOldPrice;
     }
 
-    public String getStatus() {
-        return status;
+    public Integer getProductStock() {
+        return productStock;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setProductStock(Integer productStock) {
+        this.productStock = productStock;
     }
 
-    public String getDescription() {
-        return description;
+    public String getProductStatus() {
+        return productStatus;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setProductStatus(String productStatus) {
+        this.productStatus = productStatus;
+    }
+
+    public String getProductDescription() {
+        return productDescription;
+    }
+
+    public void setProductDescription(String productDescription) {
+        this.productDescription = productDescription;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -92,27 +106,35 @@ public class ProductResponseDto {
         this.createdAt = createdAt;
     }
 
-    public String getMainImage() {
-        return mainImage;
+    public Integer getProductQuantity() {
+        return productQuantity;
     }
 
-    public void setMainImage(String mainImage) {
-        this.mainImage = mainImage;
+    public void setProductQuantity(Integer productQuantity) {
+        this.productQuantity = productQuantity;
     }
 
-    public List<String> getSubImages() {
-        return subImages;
+    public String getProductMainImage() {
+        return productMainImage;
     }
 
-    public void setSubImages(List<String> subImages) {
-        this.subImages = subImages;
+    public void setProductMainImage(String productMainImage) {
+        this.productMainImage = productMainImage;
     }
 
-    public Map<String, String> getDynamicFields() {
-        return dynamicFields;
+    public List<String> getProductSubImages() {
+        return productSubImages;
     }
 
-    public void setDynamicFields(Map<String, String> dynamicFields) {
-        this.dynamicFields = dynamicFields;
+    public void setProductSubImages(List<String> productSubImages) {
+        this.productSubImages = productSubImages;
+    }
+
+    public Map<String, String> getProductDynamicFields() {
+        return productDynamicFields;
+    }
+
+    public void setProductDynamicFields(Map<String, String> productDynamicFields) {
+        this.productDynamicFields = productDynamicFields;
     }
 }

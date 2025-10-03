@@ -1,100 +1,123 @@
 package com.ph.Pharmacy.dto.request;
 
 import org.springframework.web.multipart.MultipartFile;
+
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
 public class ProductRequestDto {
 
-    private String name;
-    private String category;
-    private String subcategory;
-    private Double price;
-    private Integer stock;
-    private String status;
-    private String description;
-    private MultipartFile mainImage;
-    private List<MultipartFile> subImages;
-    private Map<String, String> dynamicFields;
+    private String productName;              // UPDATED: from name
+    private String productCategory;          // UPDATED: from category
+    private String productSubCategory;       // UPDATED: from subcategory
+    private BigDecimal productPrice;         // UPDATED: from Double to BigDecimal
+    private BigDecimal productOldPrice;      // ADDED: new field
+    private Integer productStock;            // UPDATED: from stock
+    private String productStatus;            // UPDATED: from status
+    private String productDescription;       // UPDATED: from description
+    private Integer productQuantity;
+    private MultipartFile productMainImage;  // UPDATED: from mainImage
+    private List<MultipartFile> productSubImages;  // UPDATED: from subImages
+    private Map<String, String> productDynamicFields;  // UPDATED: from dynamicFields
+
+    // Default constructor
+    public ProductRequestDto() {}
 
     // Getters and Setters
-    public String getName() {
-        return name;
+    public String getProductName() {
+        return productName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setProductName(String productName) {
+        this.productName = productName;
     }
 
-    public String getCategory() {
-        return category;
+    public String getProductCategory() {
+        return productCategory;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setProductCategory(String productCategory) {
+        this.productCategory = productCategory;
     }
 
-    public String getSubcategory() {
-        return subcategory;
+    public String getProductSubCategory() {
+        return productSubCategory;
     }
 
-    public void setSubcategory(String subcategory) {
-        this.subcategory = subcategory;
+    public void setProductSubCategory(String productSubCategory) {
+        this.productSubCategory = productSubCategory;
     }
 
-    public Double getPrice() {
-        return price;
+    public BigDecimal getProductPrice() {
+        return productPrice;
     }
 
-    public void setPrice(Double price) {
-        this.price = price;
+    public void setProductPrice(BigDecimal productPrice) {
+        this.productPrice = productPrice;
     }
 
-    public Integer getStock() {
-        return stock;
+    public BigDecimal getProductOldPrice() {
+        return productOldPrice;
     }
 
-    public void setStock(Integer stock) {
-        this.stock = stock;
+    public void setProductOldPrice(BigDecimal productOldPrice) {
+        this.productOldPrice = productOldPrice;
     }
 
-    public String getStatus() {
-        return status;
+    public Integer getProductStock() {
+        return productStock;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setProductStock(Integer productStock) {
+        this.productStock = productStock;
     }
 
-    public String getDescription() {
-        return description;
+    public String getProductStatus() {
+        return productStatus;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setProductStatus(String productStatus) {
+        this.productStatus = productStatus;
     }
 
-    public MultipartFile getMainImage() {
-        return mainImage;
+    public String getProductDescription() {
+        return productDescription;
     }
 
-    public void setMainImage(MultipartFile mainImage) {
-        this.mainImage = mainImage;
+    public void setProductDescription(String productDescription) {
+        this.productDescription = productDescription;
     }
 
-    public List<MultipartFile> getSubImages() {
-        return subImages;
+    public Integer getProductQuantity() {
+        return productQuantity;
     }
 
-    public void setSubImages(List<MultipartFile> subImages) {
-        this.subImages = subImages;
+    public void setProductQuantity(Integer productQuantity) {
+        this.productQuantity = productQuantity;
     }
 
-    public Map<String, String> getDynamicFields() {
-        return dynamicFields;
+    public MultipartFile getProductMainImage() {
+        return productMainImage;
     }
 
-    public void setDynamicFields(Map<String, String> dynamicFields) {
-        this.dynamicFields = dynamicFields;
+    public void setProductMainImage(MultipartFile productMainImage) {
+        this.productMainImage = productMainImage;
+    }
+
+    public List<MultipartFile> getProductSubImages() {
+        return productSubImages;
+    }
+
+    public void setProductSubImages(List<MultipartFile> productSubImages) {
+        this.productSubImages = productSubImages;
+    }
+
+    public Map<String, String> getProductDynamicFields() {
+        return productDynamicFields;
+    }
+
+    public void setProductDynamicFields(Map<String, String> productDynamicFields) {
+        this.productDynamicFields = productDynamicFields;
     }
 }

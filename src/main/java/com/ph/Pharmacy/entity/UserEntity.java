@@ -1,10 +1,15 @@
 package com.ph.Pharmacy.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users_table")
 public class UserEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
@@ -22,8 +27,38 @@ public class UserEntity {
     private String addressCountry;
     private String addressType;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<ShippingAddressEntity> shippingAddresses = new ArrayList<>();
+
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<OrderEntity> orders = new ArrayList<>();
+
     // Constructors
     public UserEntity() {}
+
+    public UserEntity(Long userId, String firstName, String lastName, String email,
+                      String phone, String password, String addressLandmark, String addressArea,
+                      String addressCity, String addressPincode, String addressState,
+                      String addressCountry, String addressType,
+                      List<ShippingAddressEntity> shippingAddresses) {
+        this.userId = userId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.phone = phone;
+        this.password = password;
+        this.addressLandmark = addressLandmark;
+        this.addressArea = addressArea;
+        this.addressCity = addressCity;
+        this.addressPincode = addressPincode;
+        this.addressState = addressState;
+        this.addressCountry = addressCountry;
+        this.addressType = addressType;
+        this.shippingAddresses = shippingAddresses;
+    }
 
     // Getters and Setters
     public Long getUserId() {
@@ -130,5 +165,11 @@ public class UserEntity {
         this.addressType = addressType;
     }
 
+    public List<ShippingAddressEntity> getShippingAddresses() {
+        return shippingAddresses;
+    }
 
+    public void setShippingAddresses(List<ShippingAddressEntity> shippingAddresses) {
+        this.shippingAddresses = shippingAddresses;
+    }
 }

@@ -1,6 +1,8 @@
 package com.ph.Pharmacy.entity;
 
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -11,103 +13,150 @@ public class ProductEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long productId;
 
-    private String name;
+    @Column(name = "product_name")
+    private String productName;
 
-    private String category;
+    @Column(name = "product_category")
+    private String productCategory;
 
-    private String subcategory;
+    @Column(name = "product_sub_category")
+    private String productSubCategory;
 
-    private Double price;
+    @Column(name = "product_price")
+    private BigDecimal productPrice;
 
-    private Integer stock;
+    @Column(name = "product_old_price")
+    private BigDecimal productOldPrice;
 
-    private String status;
+    @Column(name = "product_stock")
+    private Integer productStock;
 
-    private String description;
+    @Column(name = "product_status")
+    private String productStatus;
+
+    @Column(name = "product_description")
+    private String productDescription;
 
     private LocalDateTime createdAt;
 
+    @Column(name = "product_quantity")
+    private Integer productQuantity;
+
     @Lob
-    @Column(columnDefinition = "LONGBLOB")
-    private byte[] mainImage;
+    @Column(name="product_main_img", columnDefinition = "LONGBLOB")
+    private byte[] productMainImage;
 
     @ElementCollection
     @CollectionTable(name = "product_sub_images", joinColumns = @JoinColumn(name = "product_id"))
     @Lob
     @Column(columnDefinition = "LONGBLOB")
-    private List<byte[]> subImages;
+    private List<byte[]> productSubImages;
 
     @ElementCollection
     @CollectionTable(name = "product_dynamic_fields", joinColumns = @JoinColumn(name = "product_id"))
     @MapKeyColumn(name = "field_key")
     @Column(name = "field_value")
-    private Map<String, String> dynamicFields;
+    private Map<String, String> productDynamicFields;
+
+
+    public ProductEntity(){}
+
+    public ProductEntity(Long productId, String productName, String productCategory,
+                         String productSubCategory, BigDecimal productPrice, BigDecimal productOldPrice,
+                         Integer productStock, String productStatus, String productDescription,
+                         LocalDateTime createdAt, Integer productQuantity, byte[] productMainImage, List<byte[]> productSubImages,
+                         Map<String, String> productDynamicFields) {
+        this.productId = productId;
+        this.productName = productName;
+        this.productCategory = productCategory;
+        this.productSubCategory = productSubCategory;
+        this.productPrice = productPrice;
+        this.productOldPrice = productOldPrice;
+        this.productStock = productStock;
+        this.productStatus = productStatus;
+        this.productDescription = productDescription;
+        this.createdAt = createdAt;
+        this.productQuantity = productQuantity;
+        this.productMainImage = productMainImage;
+        this.productSubImages = productSubImages;
+        this.productDynamicFields = productDynamicFields;
+    }
 
     // Getters and Setters
-    public Long getId() {
-        return id;
+
+
+    public Long getProductId() {
+        return productId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setProductId(Long productId) {
+        this.productId = productId;
     }
 
-    public String getName() {
-        return name;
+    public String getProductName() {
+        return productName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setProductName(String productName) {
+        this.productName = productName;
     }
 
-    public String getCategory() {
-        return category;
+    public String getProductCategory() {
+        return productCategory;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setProductCategory(String productCategory) {
+        this.productCategory = productCategory;
     }
 
-    public String getSubcategory() {
-        return subcategory;
+    public String getProductSubCategory() {
+        return productSubCategory;
     }
 
-    public void setSubcategory(String subcategory) {
-        this.subcategory = subcategory;
+    public void setProductSubCategory(String productSubCategory) {
+        this.productSubCategory = productSubCategory;
     }
 
-    public Double getPrice() {
-        return price;
+    public BigDecimal getProductPrice() {
+        return productPrice;
     }
 
-    public void setPrice(Double price) {
-        this.price = price;
+    public void setProductPrice(BigDecimal productPrice) {
+        this.productPrice = productPrice;
     }
 
-    public Integer getStock() {
-        return stock;
+    public BigDecimal getProductOldPrice() {
+        return productOldPrice;
     }
 
-    public void setStock(Integer stock) {
-        this.stock = stock;
+    public void setProductOldPrice(BigDecimal productOldPrice) {
+        this.productOldPrice = productOldPrice;
     }
 
-    public String getStatus() {
-        return status;
+    public Integer getProductStock() {
+        return productStock;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setProductStock(Integer productStock) {
+        this.productStock = productStock;
     }
 
-    public String getDescription() {
-        return description;
+    public String getProductStatus() {
+        return productStatus;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setProductStatus(String productStatus) {
+        this.productStatus = productStatus;
+    }
+
+    public String getProductDescription() {
+        return productDescription;
+    }
+
+    public void setProductDescription(String productDescription) {
+        this.productDescription = productDescription;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -118,27 +167,35 @@ public class ProductEntity {
         this.createdAt = createdAt;
     }
 
-    public byte[] getMainImage() {
-        return mainImage;
+    public Integer getProductQuantity() {
+        return productQuantity;
     }
 
-    public void setMainImage(byte[] mainImage) {
-        this.mainImage = mainImage;
+    public void setProductQuantity(Integer productQuantity) {
+        this.productQuantity = productQuantity;
     }
 
-    public List<byte[]> getSubImages() {
-        return subImages;
+    public byte[] getProductMainImage() {
+        return productMainImage;
     }
 
-    public void setSubImages(List<byte[]> subImages) {
-        this.subImages = subImages;
+    public void setProductMainImage(byte[] productMainImage) {
+        this.productMainImage = productMainImage;
     }
 
-    public Map<String, String> getDynamicFields() {
-        return dynamicFields;
+    public List<byte[]> getProductSubImages() {
+        return productSubImages;
     }
 
-    public void setDynamicFields(Map<String, String> dynamicFields) {
-        this.dynamicFields = dynamicFields;
+    public void setProductSubImages(List<byte[]> productSubImages) {
+        this.productSubImages = productSubImages;
+    }
+
+    public Map<String, String> getProductDynamicFields() {
+        return productDynamicFields;
+    }
+
+    public void setProductDynamicFields(Map<String, String> productDynamicFields) {
+        this.productDynamicFields = productDynamicFields;
     }
 }

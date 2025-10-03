@@ -1,10 +1,12 @@
 package com.ph.Pharmacy.service.serviceImpl;
 
-import com.ph.Pharmacy.dto.request.ShippingAddressRequestDto;
-import com.ph.Pharmacy.dto.response.ShippingAddressResponseDto;
+import com.ph.Pharmacy.dto.request.ShippingAddressDTO;
 import com.ph.Pharmacy.entity.ShippingAddressEntity;
+import com.ph.Pharmacy.entity.UserEntity;
 import com.ph.Pharmacy.repository.ShippingAddressRepository;
+import com.ph.Pharmacy.repository.UserRepository;
 import com.ph.Pharmacy.service.ShippingAddressService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,124 +16,100 @@ import java.util.stream.Collectors;
 @Service
 public class ShippingAddressServiceImpl implements ShippingAddressService {
 
-    @Autowired
-    private ShippingAddressRepository shippingAddressRepository;
+    private final ShippingAddressRepository addressRepository;
+    private final UserRepository userRepository;
 
-    @Override
-    public ShippingAddressResponseDto createShippingAddress(ShippingAddressRequestDto requestDto) {
-        ShippingAddressEntity entity = convertToEntity(requestDto);
-        ShippingAddressEntity savedEntity = shippingAddressRepository.save(entity);
-        return convertToResponseDto(savedEntity);
+    public ShippingAddressServiceImpl(ShippingAddressRepository addressRepository, UserRepository userRepository) {
+        this.addressRepository = addressRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
-    public ShippingAddressResponseDto getShippingAddressById(Long shippingId) {
-        ShippingAddressEntity entity = shippingAddressRepository.findById(shippingId)
-                .orElseThrow(() -> new RuntimeException("Shipping address not found with id: " + shippingId));
-        return convertToResponseDto(entity);
+    public ShippingAddressDTO createAddress(Long userId, ShippingAddressDTO addressDTO) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        ShippingAddressEntity addressEntity = new ShippingAddressEntity();
+        BeanUtils.copyProperties(addressDTO, addressEntity);
+        addressEntity.setUser(user);
+
+        addressEntity = addressRepository.save(addressEntity);
+
+        addressDTO.setShippingId(addressEntity.getShippingId());
+        return addressDTO;
     }
 
     @Override
-    public List<ShippingAddressResponseDto> getAllShippingAddresses() {
-        List<ShippingAddressEntity> entities = shippingAddressRepository.findAll();
-        return entities.stream().map(this::convertToResponseDto).collect(Collectors.toList());
+    public List<ShippingAddressDTO> getAddressesByUserId(Long userId) {
+        return addressRepository.findByUserUserId(userId).stream()
+                .map(addressEntity -> {
+                    ShippingAddressDTO dto = new ShippingAddressDTO();
+                    BeanUtils.copyProperties(addressEntity, dto);
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<ShippingAddressResponseDto> getShippingAddressByUserId(Long userId) {
-        List<ShippingAddressEntity> entities = shippingAddressRepository.findByUserId(userId);
-        return entities.stream().map(this::convertToResponseDto).collect(Collectors.toList());
+    public List<ShippingAddressDTO> getAllAddresses() {
+        return addressRepository.findAll().stream()
+                .map(addressEntity -> {
+                    ShippingAddressDTO dto = new ShippingAddressDTO();
+                    BeanUtils.copyProperties(addressEntity, dto);
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<ShippingAddressResponseDto> getShippingAddressByCity(String city) {
-        List<ShippingAddressEntity> entities = shippingAddressRepository.findByShippingCity(city);
-        return entities.stream().map(this::convertToResponseDto).collect(Collectors.toList());
-    }
+    public ShippingAddressDTO updateAddress(Long userId, Long shippingId, ShippingAddressDTO addressDTO) {
+        ShippingAddressEntity addressEntity = addressRepository.findById(shippingId)
+                .orElseThrow(() -> new RuntimeException("Address not found"));
 
-    @Override
-    public List<ShippingAddressResponseDto> getShippingAddressByState(String state) {
-        List<ShippingAddressEntity> entities = shippingAddressRepository.findByShippingState(state);
-        return entities.stream().map(this::convertToResponseDto).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<ShippingAddressResponseDto> getShippingAddressByCountry(String country) {
-        List<ShippingAddressEntity> entities = shippingAddressRepository.findByShippingCountry(country);
-        return entities.stream().map(this::convertToResponseDto).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<ShippingAddressResponseDto> getShippingAddressByCustomerEmail(String customerEmail) {
-        List<ShippingAddressEntity> entities = shippingAddressRepository.findByCustomerEmail(customerEmail);
-        return entities.stream().map(this::convertToResponseDto).collect(Collectors.toList());
-    }
-
-    @Override
-    public ShippingAddressResponseDto updateShippingAddress(Long shippingId, ShippingAddressRequestDto requestDto) {
-        ShippingAddressEntity existingEntity = shippingAddressRepository.findById(shippingId)
-                .orElseThrow(() -> new RuntimeException("Shipping address not found with id: " + shippingId));
-
-        updateEntityFromDto(existingEntity, requestDto);
-        ShippingAddressEntity updatedEntity = shippingAddressRepository.save(existingEntity);
-        return convertToResponseDto(updatedEntity);
-    }
-
-    @Override
-    public void deleteShippingAddress(Long shippingId) {
-        if (!shippingAddressRepository.existsById(shippingId)) {
-            throw new RuntimeException("Shipping address not found with id: " + shippingId);
+        if (!addressEntity.getUser().getUserId().equals(userId)) {
+            throw new RuntimeException("Address does not belong to user");
         }
-        shippingAddressRepository.deleteById(shippingId);
+
+        // Update only non-null fields from the DTO
+        if (addressDTO.getCustomerPhone() != null) {
+            addressEntity.setCustomerPhone(addressDTO.getCustomerPhone());
+        }
+        if (addressDTO.getCustomerEmail() != null) {
+            addressEntity.setCustomerEmail(addressDTO.getCustomerEmail());
+        }
+        if (addressDTO.getShippingAddress() != null) {
+            addressEntity.setShippingAddress(addressDTO.getShippingAddress());
+        }
+        if (addressDTO.getShippingCity() != null) {
+            addressEntity.setShippingCity(addressDTO.getShippingCity());
+        }
+        if (addressDTO.getShippingState() != null) {
+            addressEntity.setShippingState(addressDTO.getShippingState());
+        }
+        if (addressDTO.getShippingPincode() != null) {
+            addressEntity.setShippingPincode(addressDTO.getShippingPincode());
+        }
+        if (addressDTO.getShippingCountry() != null) {
+            addressEntity.setShippingCountry(addressDTO.getShippingCountry());
+        }
+
+        addressEntity = addressRepository.save(addressEntity);
+
+        ShippingAddressDTO updatedDTO = new ShippingAddressDTO();
+        BeanUtils.copyProperties(addressEntity, updatedDTO);
+        return updatedDTO;
     }
 
-    // Helper methods for conversion
-    private ShippingAddressEntity convertToEntity(ShippingAddressRequestDto requestDto) {
-        return new ShippingAddressEntity(
-                requestDto.getUserId(),
-                requestDto.getUsername(),
-                requestDto.getEmail(),
-                requestDto.getCustomerPhone(),
-                requestDto.getCustomerEmail(),
-                requestDto.getShippingAddress(),
-                requestDto.getShippingCity(),
-                requestDto.getShippingState(),
-                requestDto.getShippingPincode(),
-                requestDto.getShippingCountry()
-        );
-    }
 
-    private ShippingAddressResponseDto convertToResponseDto(ShippingAddressEntity entity) {
-        ShippingAddressResponseDto.UserDto userDto = new ShippingAddressResponseDto.UserDto(
-                entity.getUserId(),
-                entity.getUsername(),
-                entity.getEmail()
-        );
+    @Override
+    public void deleteAddress(Long userId, Long shippingId) {
+        ShippingAddressEntity addressEntity = addressRepository.findById(shippingId)
+                .orElseThrow(() -> new RuntimeException("Address not found"));
 
-        return new ShippingAddressResponseDto(
-                entity.getShippingId(),
-                userDto,
-                entity.getCustomerPhone(),
-                entity.getCustomerEmail(),
-                entity.getShippingAddress(),
-                entity.getShippingCity(),
-                entity.getShippingState(),
-                entity.getShippingPincode(),
-                entity.getShippingCountry()
-        );
-    }
+        if (!addressEntity.getUser().getUserId().equals(userId)) {
+            throw new RuntimeException("Address does not belong to user");
+        }
 
-    private void updateEntityFromDto(ShippingAddressEntity entity, ShippingAddressRequestDto requestDto) {
-        entity.setUserId(requestDto.getUserId());
-        entity.setUsername(requestDto.getUsername());
-        entity.setEmail(requestDto.getEmail());
-        entity.setCustomerPhone(requestDto.getCustomerPhone());
-        entity.setCustomerEmail(requestDto.getCustomerEmail());
-        entity.setShippingAddress(requestDto.getShippingAddress());
-        entity.setShippingCity(requestDto.getShippingCity());
-        entity.setShippingState(requestDto.getShippingState());
-        entity.setShippingPincode(requestDto.getShippingPincode());
-        entity.setShippingCountry(requestDto.getShippingCountry());
+        addressRepository.delete(addressEntity);
     }
 }
-

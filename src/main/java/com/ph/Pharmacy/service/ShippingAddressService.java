@@ -1,30 +1,18 @@
 package com.ph.Pharmacy.service;
 
-import com.ph.Pharmacy.dto.request.ShippingAddressRequestDto;
-import com.ph.Pharmacy.dto.response.ShippingAddressResponseDto;
+import com.ph.Pharmacy.dto.request.ShippingAddressDTO;
 
 import java.util.List;
 
 public interface ShippingAddressService {
 
-    ShippingAddressResponseDto createShippingAddress(ShippingAddressRequestDto requestDto);
+    ShippingAddressDTO createAddress(Long userId, ShippingAddressDTO addressDTO);
 
-    ShippingAddressResponseDto getShippingAddressById(Long shippingId);
+    List<ShippingAddressDTO> getAddressesByUserId(Long userId);
 
-    List<ShippingAddressResponseDto> getAllShippingAddresses();
+    List<ShippingAddressDTO> getAllAddresses();
 
-    List<ShippingAddressResponseDto> getShippingAddressByUserId(Long userId);
+    ShippingAddressDTO updateAddress(Long userId, Long shippingId, ShippingAddressDTO addressDTO);
 
-    List<ShippingAddressResponseDto> getShippingAddressByCity(String city);
-
-    List<ShippingAddressResponseDto> getShippingAddressByState(String state);
-
-    List<ShippingAddressResponseDto> getShippingAddressByCountry(String country);
-
-    List<ShippingAddressResponseDto> getShippingAddressByCustomerEmail(String customerEmail);
-
-    ShippingAddressResponseDto updateShippingAddress(Long shippingId, ShippingAddressRequestDto requestDto);
-
-    void deleteShippingAddress(Long shippingId);
+    void deleteAddress(Long userId, Long shippingId);
 }
-

@@ -1,14 +1,21 @@
 package com.ph.Pharmacy.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+//@JsonIgnoreProperties(ignoreUnknown = true)
 public class OrderItemDto {
     private Long orderItemId;
     private Long productId;
     private int quantity;
     private Double itemPrice;
+    private Double itemOldPrice;
     private Double subtotal;
     private String itemName;
 
     // Getters and Setters
+    public OrderItemDto(){}
+
+
     public Long getOrderItemId() {
         return orderItemId;
     }
@@ -41,6 +48,14 @@ public class OrderItemDto {
         this.itemPrice = itemPrice;
     }
 
+    public Double getItemOldPrice() {
+        return itemOldPrice;
+    }
+
+    public void setItemOldPrice(Double itemOldPrice) {
+        this.itemOldPrice = itemOldPrice;
+    }
+
     public Double getSubtotal() {
         return subtotal;
     }
@@ -56,4 +71,6 @@ public class OrderItemDto {
     public void setItemName(String itemName) {
         this.itemName = itemName;
     }
+
+
 }

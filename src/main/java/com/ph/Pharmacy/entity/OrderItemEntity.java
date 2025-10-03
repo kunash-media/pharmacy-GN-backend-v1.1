@@ -19,13 +19,29 @@ public class OrderItemEntity {
 
     private int quantity;
     private Double itemPrice;
+    private Double itemOldPrice;
     private Double subtotal;
     private String itemName;
 
     // Constructors
     public OrderItemEntity() {}
 
-    // Getters and Setters
+    public OrderItemEntity(Long orderItemId, OrderEntity order, ProductEntity product,
+                           int quantity, Double itemPrice, Double itemOldPrice,
+                           Double subtotal, String itemName) {
+        this.orderItemId = orderItemId;
+        this.order = order;
+        this.product = product;
+        this.quantity = quantity;
+        this.itemPrice = itemPrice;
+        this.itemOldPrice = itemOldPrice;
+        this.subtotal = subtotal;
+        this.itemName = itemName;
+    }
+
+    // Getters and Setters (omitted for brevity, assume standard)
+
+
     public Long getOrderItemId() {
         return orderItemId;
     }
@@ -64,6 +80,14 @@ public class OrderItemEntity {
 
     public void setItemPrice(Double itemPrice) {
         this.itemPrice = itemPrice;
+    }
+
+    public Double getItemOldPrice() {
+        return itemOldPrice;
+    }
+
+    public void setItemOldPrice(Double itemOldPrice) {
+        this.itemOldPrice = itemOldPrice;
     }
 
     public Double getSubtotal() {

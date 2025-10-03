@@ -1,11 +1,15 @@
 package com.ph.Pharmacy.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.ph.Pharmacy.dto.request.OrderItemDto;
 
 import java.util.List;
 
+//@JsonIgnoreProperties(ignoreUnknown = true)
 public class OrderResponseDto {
+
     private Long orderId;
+    private Long userId;
     private String shippingAddress;
     private String shippingAddress2;
     private String shippingCity;
@@ -16,35 +20,41 @@ public class OrderResponseDto {
     private String shippingLastName;
     private String shippingEmail;
     private String shippingPhone;
-    private String billingCustomerName;
-    private String billingLastName;
-    private String billingAddress;
-    private String billingAddress2;
-    private String billingCity;
-    private String billingPincode;
-    private String billingState;
-    private String billingCountry;
-    private String billingEmail;
-    private String billingPhone;
-    private boolean shippingIsBilling;
     private String customerFirstName;
     private String customerLastName;
     private String customerPhone;
     private String customerEmail;
     private String paymentMethod;
     private Double totalAmount;
+    private Double tax;
+    private Double couponApplied;
+    private Double convenienceFee;
+    private Double discountPercent;
+    private Double discountAmount;
     private String orderStatus;
     private String orderDate;
     private String deliveryDate;
     private List<OrderItemDto> orderItems;
 
+
     // Getters and Setters
+
+    public OrderResponseDto(){}
+
     public Long getOrderId() {
         return orderId;
     }
 
     public void setOrderId(Long orderId) {
         this.orderId = orderId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getShippingAddress() {
@@ -127,94 +137,6 @@ public class OrderResponseDto {
         this.shippingPhone = shippingPhone;
     }
 
-    public String getBillingCustomerName() {
-        return billingCustomerName;
-    }
-
-    public void setBillingCustomerName(String billingCustomerName) {
-        this.billingCustomerName = billingCustomerName;
-    }
-
-    public String getBillingLastName() {
-        return billingLastName;
-    }
-
-    public void setBillingLastName(String billingLastName) {
-        this.billingLastName = billingLastName;
-    }
-
-    public String getBillingAddress() {
-        return billingAddress;
-    }
-
-    public void setBillingAddress(String billingAddress) {
-        this.billingAddress = billingAddress;
-    }
-
-    public String getBillingAddress2() {
-        return billingAddress2;
-    }
-
-    public void setBillingAddress2(String billingAddress2) {
-        this.billingAddress2 = billingAddress2;
-    }
-
-    public String getBillingCity() {
-        return billingCity;
-    }
-
-    public void setBillingCity(String billingCity) {
-        this.billingCity = billingCity;
-    }
-
-    public String getBillingPincode() {
-        return billingPincode;
-    }
-
-    public void setBillingPincode(String billingPincode) {
-        this.billingPincode = billingPincode;
-    }
-
-    public String getBillingState() {
-        return billingState;
-    }
-
-    public void setBillingState(String billingState) {
-        this.billingState = billingState;
-    }
-
-    public String getBillingCountry() {
-        return billingCountry;
-    }
-
-    public void setBillingCountry(String billingCountry) {
-        this.billingCountry = billingCountry;
-    }
-
-    public String getBillingEmail() {
-        return billingEmail;
-    }
-
-    public void setBillingEmail(String billingEmail) {
-        this.billingEmail = billingEmail;
-    }
-
-    public String getBillingPhone() {
-        return billingPhone;
-    }
-
-    public void setBillingPhone(String billingPhone) {
-        this.billingPhone = billingPhone;
-    }
-
-    public boolean isShippingIsBilling() {
-        return shippingIsBilling;
-    }
-
-    public void setShippingIsBilling(boolean shippingIsBilling) {
-        this.shippingIsBilling = shippingIsBilling;
-    }
-
     public String getCustomerFirstName() {
         return customerFirstName;
     }
@@ -263,6 +185,30 @@ public class OrderResponseDto {
         this.totalAmount = totalAmount;
     }
 
+    public Double getTax() {
+        return tax;
+    }
+
+    public void setTax(Double tax) {
+        this.tax = tax;
+    }
+
+    public Double getCouponApplied() {
+        return couponApplied;
+    }
+
+    public void setCouponApplied(Double couponApplied) {
+        this.couponApplied = couponApplied;
+    }
+
+    public Double getConvenienceFee() {
+        return convenienceFee;
+    }
+
+    public void setConvenienceFee(Double convenienceFee) {
+        this.convenienceFee = convenienceFee;
+    }
+
     public String getOrderStatus() {
         return orderStatus;
     }
@@ -293,5 +239,21 @@ public class OrderResponseDto {
 
     public void setOrderItems(List<OrderItemDto> orderItems) {
         this.orderItems = orderItems;
+    }
+
+    public Double getDiscountPercent() {
+        return discountPercent;
+    }
+
+    public void setDiscountPercent(Double discountPercent) {
+        this.discountPercent = discountPercent;
+    }
+
+    public Double getDiscountAmount() {
+        return discountAmount;
+    }
+
+    public void setDiscountAmount(Double discountAmount) {
+        this.discountAmount = discountAmount;
     }
 }

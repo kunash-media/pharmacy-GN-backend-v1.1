@@ -9,14 +9,7 @@ import java.util.List;
 @Repository
 public interface ShippingAddressRepository extends JpaRepository<ShippingAddressEntity, Long> {
 
-    List<ShippingAddressEntity> findByUserId(Long userId);
+    List<ShippingAddressEntity> findByUserUserId(Long userId);
 
-    List<ShippingAddressEntity> findByShippingCity(String city);
-
-    List<ShippingAddressEntity> findByShippingState(String state);
-
-    List<ShippingAddressEntity> findByShippingCountry(String country);
-
-    List<ShippingAddressEntity> findByCustomerEmail(String customerEmail);
 }
 
