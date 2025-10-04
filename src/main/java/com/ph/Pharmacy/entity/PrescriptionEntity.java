@@ -1,58 +1,172 @@
 package com.ph.Pharmacy.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.Data;
 
-import java.time.LocalDate;
-import java.util.List;
+import java.time.LocalDateTime;
+
 
 @Entity
 @Table(name = "prescriptions_table")
+@Data
 public class PrescriptionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    private Long prescriptionId;
 
-    private String patientName;
-    private String doctorName;
-    private LocalDate date;
-    private String status;
+    @Column(name = "first_name", nullable = false)
+    private String firstName;
 
-    @Embedded
-    private PatientDetails patientDetails;
+    @Column(name = "last_name", nullable = false)
+    private String lastName;
 
-    @Embedded
-    private DoctorDetails doctorDetails;
+    @Column(name = "mobile_number", nullable = false)
+    private String mobileNumber;
 
-    @ElementCollection
-    private List<Medicine> medicines;
+    @Column(name = "email", nullable = false)
+    private String email;
 
-    private String notes;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
-    @ElementCollection
+    @Column(name = "order_status")
+    private String orderStatus;
+
+    @Column(name = "prescription_img", columnDefinition = "LONGBLOB")
     @Lob
-    private List<byte[]> images;
+    private byte[] prescriptionImg;
 
-    // Getters and Setters
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
-    public String getPatientName() { return patientName; }
-    public void setPatientName(String patientName) { this.patientName = patientName; }
-    public String getDoctorName() { return doctorName; }
-    public void setDoctorName(String doctorName) { this.doctorName = doctorName; }
-    public LocalDate getDate() { return date; }
-    public void setDate(LocalDate date) { this.date = date; }
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-    public PatientDetails getPatientDetails() { return patientDetails; }
-    public void setPatientDetails(PatientDetails patientDetails) { this.patientDetails = patientDetails; }
-    public DoctorDetails getDoctorDetails() { return doctorDetails; }
-    public void setDoctorDetails(DoctorDetails doctorDetails) { this.doctorDetails = doctorDetails; }
-    public List<Medicine> getMedicines() { return medicines; }
-    public void setMedicines(List<Medicine> medicines) { this.medicines = medicines; }
-    public String getNotes() { return notes; }
-    public void setNotes(String notes) { this.notes = notes; }
-    public List<byte[]> getImages() { return images; }
-    public void setImages(List<byte[]> images) { this.images = images; }
+    @Column(name = "payment_method")
+    private String paymentMethod;
+
+    @Column(name = "is_approved")
+    private boolean isApproved;
+
+
+    // Replace the Long userId with ManyToOne relationship
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore  // Prevent infinite recursion in JSON serialization
+    private UserEntity user;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        if (orderStatus == null) {
+            orderStatus = "PENDING";
+        }
+        if (!isApproved) {
+            isApproved = false;
+        }
+    }
+
+    public PrescriptionEntity() {
+    }
+
+    public PrescriptionEntity(Long prescriptionId, String firstName, String lastName,
+                              String mobileNumber, String email, LocalDateTime createdAt,
+                              String orderStatus, byte[] prescriptionImg, String paymentMethod,
+                              boolean isApproved, UserEntity user) {
+        this.prescriptionId = prescriptionId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.mobileNumber = mobileNumber;
+        this.email = email;
+        this.createdAt = createdAt;
+        this.orderStatus = orderStatus;
+        this.prescriptionImg = prescriptionImg;
+        this.paymentMethod = paymentMethod;
+        this.isApproved = isApproved;
+        this.user = user;
+    }
+
+    public Long getPrescriptionId() {
+        return prescriptionId;
+    }
+
+    public void setPrescriptionId(Long prescriptionId) {
+        this.prescriptionId = prescriptionId;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getMobileNumber() {
+        return mobileNumber;
+    }
+
+    public void setMobileNumber(String mobileNumber) {
+        this.mobileNumber = mobileNumber;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(String orderStatus) {
+        this.orderStatus = orderStatus;
+    }
+
+    public byte[] getPrescriptionImg() {
+        return prescriptionImg;
+    }
+
+    public void setPrescriptionImg(byte[] prescriptionImg) {
+        this.prescriptionImg = prescriptionImg;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public boolean isApproved() {
+        return isApproved;
+    }
+
+    public void setApproved(boolean approved) {
+        isApproved = approved;
+    }
+
+    public UserEntity getUser() {
+        return user;
+    }
+
+    public void setUser(UserEntity user) {
+        this.user = user;
+    }
 }
-

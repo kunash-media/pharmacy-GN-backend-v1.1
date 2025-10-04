@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -60,14 +61,19 @@ public class ProductEntity {
     @Column(name = "field_value")
     private Map<String, String> productDynamicFields;
 
+    @ElementCollection
+    @CollectionTable(name = "product_sizes", joinColumns = @JoinColumn(name = "product_id"))
+    @Column(name = "size")
+    private List<String> productSizes = new ArrayList<>();
+
 
     public ProductEntity(){}
 
-    public ProductEntity(Long productId, String productName, String productCategory,
-                         String productSubCategory, BigDecimal productPrice, BigDecimal productOldPrice,
-                         Integer productStock, String productStatus, String productDescription,
-                         LocalDateTime createdAt, Integer productQuantity, byte[] productMainImage, List<byte[]> productSubImages,
-                         Map<String, String> productDynamicFields) {
+    public ProductEntity(Long productId, String productName, String productCategory, String productSubCategory,
+                         BigDecimal productPrice, BigDecimal productOldPrice, Integer productStock,
+                         String productStatus, String productDescription, LocalDateTime createdAt,
+                         Integer productQuantity, byte[] productMainImage, List<byte[]> productSubImages,
+                         Map<String, String> productDynamicFields, List<String> productSizes) {
         this.productId = productId;
         this.productName = productName;
         this.productCategory = productCategory;
@@ -82,6 +88,7 @@ public class ProductEntity {
         this.productMainImage = productMainImage;
         this.productSubImages = productSubImages;
         this.productDynamicFields = productDynamicFields;
+        this.productSizes = productSizes;
     }
 
     // Getters and Setters
@@ -197,5 +204,13 @@ public class ProductEntity {
 
     public void setProductDynamicFields(Map<String, String> productDynamicFields) {
         this.productDynamicFields = productDynamicFields;
+    }
+
+    public List<String> getProductSizes() {
+        return productSizes;
+    }
+
+    public void setProductSizes(List<String> productSizes) {
+        this.productSizes = productSizes;
     }
 }

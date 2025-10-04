@@ -26,24 +26,24 @@ public class ProductServiceImpl implements ProductService {
     }
 
     public ProductResponseDto createProduct(ProductRequestDto requestDto) throws Exception {
-        log.debug("Creating new product with name: {}", requestDto.getProductName());  // UPDATED: method name
+        log.debug("Creating new product with name: {}", requestDto.getProductName());
 
         ProductEntity entity = new ProductEntity();
 
-        entity.setProductName(requestDto.getProductName());                    // UPDATED: method names
-        entity.setProductCategory(requestDto.getProductCategory());            // UPDATED: method names
-        entity.setProductSubCategory(requestDto.getProductSubCategory());      // UPDATED: method names
-        entity.setProductPrice(requestDto.getProductPrice());                  // UPDATED: method names
-        entity.setProductOldPrice(requestDto.getProductOldPrice());            // ADDED: new field
-        entity.setProductStock(requestDto.getProductStock());                  // UPDATED: method names
-        entity.setProductStatus(requestDto.getProductStatus());                // UPDATED: method names
-        entity.setProductDescription(requestDto.getProductDescription());      // UPDATED: method names
+        entity.setProductName(requestDto.getProductName());
+        entity.setProductCategory(requestDto.getProductCategory());
+        entity.setProductSubCategory(requestDto.getProductSubCategory());
+        entity.setProductPrice(requestDto.getProductPrice());
+        entity.setProductOldPrice(requestDto.getProductOldPrice());
+        entity.setProductStock(requestDto.getProductStock());
+        entity.setProductStatus(requestDto.getProductStatus());
+        entity.setProductDescription(requestDto.getProductDescription());
         entity.setCreatedAt(LocalDateTime.now());
         entity.setProductQuantity(requestDto.getProductQuantity());
-        entity.setProductMainImage(requestDto.getProductMainImage().getBytes());  // UPDATED: method names
+        entity.setProductMainImage(requestDto.getProductMainImage().getBytes());
 
-        List<byte[]> subImages = requestDto.getProductSubImages() != null      // UPDATED: method name
-                ? requestDto.getProductSubImages().stream().map(file -> {      // UPDATED: method name
+        List<byte[]> subImages = requestDto.getProductSubImages() != null
+                ? requestDto.getProductSubImages().stream().map(file -> {
             try {
                 return file.getBytes();
             } catch (Exception e) {
@@ -51,11 +51,16 @@ public class ProductServiceImpl implements ProductService {
             }
         }).collect(Collectors.toList())
                 : new ArrayList<>();
-        entity.setProductSubImages(subImages);                                 // UPDATED: method name
-        entity.setProductDynamicFields(requestDto.getProductDynamicFields());  // UPDATED: method names
+        entity.setProductSubImages(subImages);
+        entity.setProductDynamicFields(requestDto.getProductDynamicFields());
+
+        // ADDED: Set product sizes
+        if (requestDto.getProductSizes() != null) {
+            entity.setProductSizes(requestDto.getProductSizes());
+        }
 
         ProductEntity savedEntity = productRepository.save(entity);
-        log.debug("Product saved with ID: {}", savedEntity.getProductId());    // UPDATED: method name
+        log.debug("Product saved with ID: {}", savedEntity.getProductId());
         return mapToResponseDto(savedEntity);
     }
 
@@ -82,8 +87,18 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductResponseDto> getProductsByCategory(String category) {
         log.debug("Fetching products by category: {}", category);
-        List<ProductEntity> products = productRepository.findByProductCategory(category);  // UPDATED: method name
+        List<ProductEntity> products = productRepository.findByProductCategory(category);
         log.debug("Found {} products for category: {}", products.size(), category);
+        return products.stream()
+                .map(this::mapToResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ProductResponseDto> getProductsBySubCategory(String subCategory) {
+        log.debug("Fetching products by sub category: {}", subCategory);
+        List<ProductEntity> products = productRepository.findByProductSubCategory(subCategory);
+        log.debug("Found {} products for sub category: {}", products.size(), subCategory);
         return products.stream()
                 .map(this::mapToResponseDto)
                 .collect(Collectors.toList());
@@ -98,19 +113,19 @@ public class ProductServiceImpl implements ProductService {
                     log.error("Product not found with ID: {}", id);
                     return new RuntimeException("Product not found");
                 });
-        entity.setProductName(requestDto.getProductName());                    // UPDATED: method names
-        entity.setProductCategory(requestDto.getProductCategory());            // UPDATED: method names
-        entity.setProductSubCategory(requestDto.getProductSubCategory());      // UPDATED: method names
-        entity.setProductPrice(requestDto.getProductPrice());                  // UPDATED: method names
-        entity.setProductOldPrice(requestDto.getProductOldPrice());            // ADDED: new field
-        entity.setProductStock(requestDto.getProductStock());                  // UPDATED: method names
-        entity.setProductStatus(requestDto.getProductStatus());                // UPDATED: method names
-        entity.setProductDescription(requestDto.getProductDescription());      // UPDATED: method names
+        entity.setProductName(requestDto.getProductName());
+        entity.setProductCategory(requestDto.getProductCategory());
+        entity.setProductSubCategory(requestDto.getProductSubCategory());
+        entity.setProductPrice(requestDto.getProductPrice());
+        entity.setProductOldPrice(requestDto.getProductOldPrice());
+        entity.setProductStock(requestDto.getProductStock());
+        entity.setProductStatus(requestDto.getProductStatus());
+        entity.setProductDescription(requestDto.getProductDescription());
         entity.setProductQuantity(requestDto.getProductQuantity());
-        entity.setProductMainImage(requestDto.getProductMainImage().getBytes());  // UPDATED: method names
+        entity.setProductMainImage(requestDto.getProductMainImage().getBytes());
 
-        List<byte[]> subImages = requestDto.getProductSubImages() != null      // UPDATED: method name
-                ? requestDto.getProductSubImages().stream().map(file -> {      // UPDATED: method name
+        List<byte[]> subImages = requestDto.getProductSubImages() != null
+                ? requestDto.getProductSubImages().stream().map(file -> {
             try {
                 return file.getBytes();
             } catch (Exception e) {
@@ -118,8 +133,13 @@ public class ProductServiceImpl implements ProductService {
             }
         }).collect(Collectors.toList())
                 : new ArrayList<>();
-        entity.setProductSubImages(subImages);                                 // UPDATED: method name
-        entity.setProductDynamicFields(requestDto.getProductDynamicFields());  // UPDATED: method names
+        entity.setProductSubImages(subImages);
+        entity.setProductDynamicFields(requestDto.getProductDynamicFields());
+
+        // ADDED: Set product sizes
+        if (requestDto.getProductSizes() != null) {
+            entity.setProductSizes(requestDto.getProductSizes());
+        }
 
         ProductEntity updatedEntity = productRepository.save(entity);
         log.debug("Product updated successfully with ID: {}", id);
@@ -136,18 +156,14 @@ public class ProductServiceImpl implements ProductService {
                     return new RuntimeException("Product not found");
                 });
 
-        // UPDATED: All method names to match entity naming
         if (requestDto.getProductName() != null) entity.setProductName(requestDto.getProductName());
         if (requestDto.getProductCategory() != null) entity.setProductCategory(requestDto.getProductCategory());
         if (requestDto.getProductSubCategory() != null) entity.setProductSubCategory(requestDto.getProductSubCategory());
         if (requestDto.getProductPrice() != null) entity.setProductPrice(requestDto.getProductPrice());
-        if (requestDto.getProductOldPrice() != null) entity.setProductOldPrice(requestDto.getProductOldPrice());  // ADDED
+        if (requestDto.getProductOldPrice() != null) entity.setProductOldPrice(requestDto.getProductOldPrice());
         if (requestDto.getProductStock() != null) entity.setProductStock(requestDto.getProductStock());
         if (requestDto.getProductStatus() != null) entity.setProductStatus(requestDto.getProductStatus());
-
         if (requestDto.getProductQuantity() != null) entity.setProductQuantity(requestDto.getProductQuantity());
-
-
         if (requestDto.getProductDescription() != null) entity.setProductDescription(requestDto.getProductDescription());
         if (requestDto.getProductMainImage() != null) entity.setProductMainImage(requestDto.getProductMainImage().getBytes());
         if (requestDto.getProductSubImages() != null) {
@@ -162,6 +178,11 @@ public class ProductServiceImpl implements ProductService {
         }
         if (requestDto.getProductDynamicFields() != null) entity.setProductDynamicFields(requestDto.getProductDynamicFields());
 
+        // ADDED: Set product sizes if provided
+        if (requestDto.getProductSizes() != null) {
+            entity.setProductSizes(requestDto.getProductSizes());
+        }
+
         ProductEntity updatedEntity = productRepository.save(entity);
         log.debug("Product patched successfully with ID: {}", id);
         return mapToResponseDto(updatedEntity);
@@ -174,7 +195,6 @@ public class ProductServiceImpl implements ProductService {
         log.debug("Product deleted successfully with ID: {}", id);
     }
 
-    // UPDATED: All method names to match entity naming
     private ProductResponseDto mapToResponseDto(ProductEntity entity) {
         ProductResponseDto responseDto = new ProductResponseDto();
         responseDto.setProductId(entity.getProductId());
@@ -182,7 +202,7 @@ public class ProductServiceImpl implements ProductService {
         responseDto.setProductCategory(entity.getProductCategory());
         responseDto.setProductSubCategory(entity.getProductSubCategory());
         responseDto.setProductPrice(entity.getProductPrice());
-        responseDto.setProductOldPrice(entity.getProductOldPrice());  // ADDED
+        responseDto.setProductOldPrice(entity.getProductOldPrice());
         responseDto.setProductStock(entity.getProductStock());
         responseDto.setProductStatus(entity.getProductStatus());
         responseDto.setProductDescription(entity.getProductDescription());
@@ -193,6 +213,10 @@ public class ProductServiceImpl implements ProductService {
                 .mapToObj(i -> "/api/products/" + entity.getProductId() + "/subimage/" + i)
                 .collect(Collectors.toList()));
         responseDto.setProductDynamicFields(entity.getProductDynamicFields());
+
+        // ADDED: Set product sizes
+        responseDto.setProductSizes(entity.getProductSizes());
+
         return responseDto;
     }
 }

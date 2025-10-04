@@ -2,9 +2,11 @@ package com.ph.Pharmacy.entity;
 
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
 @Table(name = "admins")
+@Data
 public class AdminEntity {
 
     @Id

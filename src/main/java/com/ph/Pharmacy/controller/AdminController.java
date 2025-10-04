@@ -18,10 +18,15 @@ import java.util.List;
 @Slf4j
 public class AdminController {
 
-    @Autowired
-    private AdminService adminService;
+
+    private final AdminService adminService;
 
     private final Logger logger = LoggerFactory.getLogger(AdminController.class);
+
+    @Autowired
+    public AdminController(AdminService adminService){
+        this.adminService = adminService;
+    }
 
     @PostMapping("/create-admin")
     public ResponseEntity<AdminResponseDto> createAdmin(@RequestBody AdminRequestDto adminRequestDto) {

@@ -36,7 +36,7 @@ public class ProductController {
     @PostMapping("/create-product")
     public ResponseEntity<ProductResponseDto> createProduct(
             @RequestPart("productData") String productDataJson,
-            @RequestPart("productMainImage") MultipartFile productMainImage,  // UPDATED: parameter name
+            @RequestPart("productMainImage") MultipartFile productMainImage,
             @RequestPart(value = "productSubImages", required = false) List<MultipartFile> productSubImages) throws Exception {  // UPDATED: parameter name
 
         log.info("Request received to create product");
@@ -76,6 +76,14 @@ public class ProductController {
         log.info("Request received to get products by category: {}", category);
         List<ProductResponseDto> responseDtos = productService.getProductsByCategory(category);
         log.info("Retrieved {} products for category: {}", responseDtos.size(), category);
+        return ResponseEntity.ok(responseDtos);
+    }
+
+    @GetMapping("/get-by-sub-category/{subCategory}")
+    public ResponseEntity<List<ProductResponseDto>> getProductsBySubCategory(@PathVariable String subCategory) {
+        log.info("Request received to get products by sub category: {}", subCategory);
+        List<ProductResponseDto> responseDtos = productService.getProductsBySubCategory(subCategory);
+        log.info("Retrieved {} products for sub category: {}", responseDtos.size(), subCategory);
         return ResponseEntity.ok(responseDtos);
     }
 

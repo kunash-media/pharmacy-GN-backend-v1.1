@@ -14,15 +14,17 @@ public interface ProductService {
 
     // ========== UPDATED: Changed return type to Page ==========
     Page<ProductResponseDto> getAllProducts(int page, int size);
-    // ========== END UPDATED ==========
+    // ========== END UPDATED ========== //
 
-    // ========== ADDED: New method for get by category ==========
+    // ========== ADDED: New method for get by category ========== //
     List<ProductResponseDto> getProductsByCategory(String category);
-    // ========== END ADDED ==========
+    // ========== END ADDED ========== //
 
     ProductResponseDto updateProduct(Long id, ProductRequestDto requestDto) throws Exception;
 
     ProductResponseDto patchProduct(Long id, ProductRequestDto requestDto) throws Exception;
 
     void deleteProduct(Long id);
+
+    List<ProductResponseDto> getProductsBySubCategory(String subCategory);
 }

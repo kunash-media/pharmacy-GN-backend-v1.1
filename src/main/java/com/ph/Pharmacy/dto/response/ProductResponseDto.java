@@ -22,6 +22,8 @@ public class ProductResponseDto {
     private List<String> productSubImages;   // UPDATED: from subImages (URL strings)
     private Map<String, String> productDynamicFields;  // UPDATED: from dynamicFields
 
+    private List<String> productSizes;
+
     // Default constructor
     public ProductResponseDto() {}
 
@@ -136,5 +138,13 @@ public class ProductResponseDto {
 
     public void setProductDynamicFields(Map<String, String> productDynamicFields) {
         this.productDynamicFields = productDynamicFields;
+    }
+
+    public List<String> getProductSizes() {
+        return productSizes;
+    }
+
+    public void setProductSizes(List<String> productSizes) {
+        this.productSizes = productSizes;
     }
 }

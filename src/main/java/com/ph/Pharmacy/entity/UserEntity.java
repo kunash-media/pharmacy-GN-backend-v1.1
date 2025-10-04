@@ -36,14 +36,21 @@ public class UserEntity {
     @JsonIgnore
     private List<OrderEntity> orders = new ArrayList<>();
 
+
+    // Add this relationship
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<PrescriptionEntity> prescriptions = new ArrayList<>();
+
     // Constructors
     public UserEntity() {}
 
-    public UserEntity(Long userId, String firstName, String lastName, String email,
-                      String phone, String password, String addressLandmark, String addressArea,
+    public UserEntity(Long userId, String firstName, String lastName, String email, String phone,
+                      String password, String addressLandmark, String addressArea,
                       String addressCity, String addressPincode, String addressState,
                       String addressCountry, String addressType,
-                      List<ShippingAddressEntity> shippingAddresses) {
+                      List<ShippingAddressEntity> shippingAddresses, List<OrderEntity> orders,
+                      List<PrescriptionEntity> prescriptions) {
         this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -58,9 +65,13 @@ public class UserEntity {
         this.addressCountry = addressCountry;
         this.addressType = addressType;
         this.shippingAddresses = shippingAddresses;
+        this.orders = orders;
+        this.prescriptions = prescriptions;
     }
 
     // Getters and Setters
+
+
     public Long getUserId() {
         return userId;
     }
@@ -171,5 +182,21 @@ public class UserEntity {
 
     public void setShippingAddresses(List<ShippingAddressEntity> shippingAddresses) {
         this.shippingAddresses = shippingAddresses;
+    }
+
+    public List<OrderEntity> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<OrderEntity> orders) {
+        this.orders = orders;
+    }
+
+    public List<PrescriptionEntity> getPrescriptions() {
+        return prescriptions;
+    }
+
+    public void setPrescriptions(List<PrescriptionEntity> prescriptions) {
+        this.prescriptions = prescriptions;
     }
 }

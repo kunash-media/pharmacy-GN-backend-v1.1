@@ -20,6 +20,7 @@ public class ProductRequestDto {
     private MultipartFile productMainImage;  // UPDATED: from mainImage
     private List<MultipartFile> productSubImages;  // UPDATED: from subImages
     private Map<String, String> productDynamicFields;  // UPDATED: from dynamicFields
+    private List<String> productSizes;
 
     // Default constructor
     public ProductRequestDto() {}
@@ -119,5 +120,13 @@ public class ProductRequestDto {
 
     public void setProductDynamicFields(Map<String, String> productDynamicFields) {
         this.productDynamicFields = productDynamicFields;
+    }
+
+    public List<String> getProductSizes() {
+        return productSizes;
+    }
+
+    public void setProductSizes(List<String> productSizes) {
+        this.productSizes = productSizes;
     }
 }

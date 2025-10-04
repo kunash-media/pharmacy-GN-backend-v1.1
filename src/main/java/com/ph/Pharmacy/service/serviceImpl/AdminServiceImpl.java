@@ -16,16 +16,17 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
+
 @Slf4j
+@Service
 public class AdminServiceImpl implements AdminService {
 
     private final Logger logger = LoggerFactory.getLogger(AdminServiceImpl.class);
 
-    @Autowired
-    private AdminRepository adminRepository;
+    private final AdminRepository adminRepository;
     private final BcryptEncoderConfig bcryptEncoderConfig;
 
+    @Autowired
     public AdminServiceImpl(AdminRepository adminRepository, BcryptEncoderConfig bcryptEncoderConfig){
         this.adminRepository = adminRepository;
         this.bcryptEncoderConfig= bcryptEncoderConfig;

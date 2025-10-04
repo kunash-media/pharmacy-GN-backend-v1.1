@@ -104,22 +104,35 @@ public class EmailServiceImpl implements EmailService {
                 "<html>" +
                 "<head>" +
                 "<style>" +
-                // ... (CSS styles)
+                "body { margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5; }" +
+                ".container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 10px; }" +
+                ".header { text-align: center; border-bottom: 2px solid #00BFFF; padding-bottom: 20px; margin-bottom: 20px; }" +
+                ".logo { max-width: 150px; height: auto; }" +
+                ".company-name { font-size: 24px; font-weight: bold; color: #00BFFF; }" +
+                "h1 { color: #333333; margin: 10px 0; }" +
+                ".info { margin: 20px 0; line-height: 1.6; color: #555555; }" +
+                ".otp-box { text-align: center; margin: 30px 0; }" +
+                ".otp-code { font-size: 32px; font-weight: bold; color: #00BFFF; text-align: center; margin: 20px auto; padding: 20px; background-color: #f8f9fa; border-radius: 10px; border: 3px solid #00BFFF; letter-spacing: 10px; font-family: 'Courier New', monospace; display: inline-block; min-width: 250px; }" +
+                ".copy-hint { color: #666666; font-size: 14px; margin-top: 10px; }" +
+                "ul { margin: 10px 0; padding-left: 20px; }" +
+                "li { margin-bottom: 8px; }" +
+                ".footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #dddddd; text-align: center; color: #888888; font-size: 12px; }" +
                 "</style>" +
                 "</head>" +
                 "<body>" +
                 "<div class='container'>" +
                 "<div class='header'>" +
-                "<img src='cid:logo' alt='Pharmacy Logo' class='logo' onerror='this.style.display=\"none\"; document.querySelector(\".company-name\").style.display=\"block\";'>" +
-                "<div class='company-name'>Good Neews</div>" +
+                "<img src='cid:logo' alt='Pharmacy Logo' class='logo' style='display:block; margin: 0 auto;'>" +
+                "<div class='company-name' style='display:none;'>Good Neews</div>" +
                 "<h1>OTP Verification</h1>" +
                 "</div>" +
                 "<div class='info'>" +
-                "<p>Hello,</p>" +
+                "<p>Hello Dear,</p>" +
                 "<p>You have requested an OTP for verification. Please use the following code:</p>" +
                 "</div>" +
                 "<div class='otp-box'>" +
                 "<div class='otp-code'>" + otp + "</div>" +
+                "<div class='copy-hint'>Select and copy the OTP above</div>" +
                 "</div>" +
                 "<div class='info'>" +
                 "<p><strong>Important:</strong></p>" +
@@ -137,6 +150,7 @@ public class EmailServiceImpl implements EmailService {
                 "</body>" +
                 "</html>";
     }
+
 
     private String buildOrderConfirmationEmailTemplate(String customerName, String orderId,
                                                        BigDecimal totalAmount, List<String> productNames, String mobile) {
