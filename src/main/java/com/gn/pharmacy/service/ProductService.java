@@ -1,8 +1,10 @@
 package com.gn.pharmacy.service;
 
 import com.gn.pharmacy.dto.request.ProductRequestDto;
+import com.gn.pharmacy.dto.response.BulkUploadResponse;
 import com.gn.pharmacy.dto.response.ProductResponseDto;
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -27,4 +29,6 @@ public interface ProductService {
     void deleteProduct(Long id);
 
     List<ProductResponseDto> getProductsBySubCategory(String subCategory);
+
+    BulkUploadResponse bulkCreateProducts(MultipartFile excelFile, List<MultipartFile> images) throws Exception;
 }

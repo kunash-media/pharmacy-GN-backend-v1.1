@@ -8,18 +8,18 @@ import java.util.Map;
 
 public class ProductRequestDto {
 
-    private String productName;              // UPDATED: from name
-    private String productCategory;          // UPDATED: from category
-    private String productSubCategory;       // UPDATED: from subcategory
-    private BigDecimal productPrice;         // UPDATED: from Double to BigDecimal
-    private BigDecimal productOldPrice;      // ADDED: new field
-    private Integer productStock;            // UPDATED: from stock
-    private String productStatus;            // UPDATED: from status
-    private String productDescription;       // UPDATED: from description
+    private String productName;
+    private String productCategory;
+    private String productSubCategory;
+    private BigDecimal productPrice;
+    private BigDecimal productOldPrice;
+    private Integer productStock;
+    private String productStatus;
+    private String productDescription;
     private Integer productQuantity;
-    private MultipartFile productMainImage;  // UPDATED: from mainImage
-    private List<MultipartFile> productSubImages;  // UPDATED: from subImages
-    private Map<String, String> productDynamicFields;  // UPDATED: from dynamicFields
+    private MultipartFile productMainImage;
+    private List<MultipartFile> productSubImages;
+    private Map<String, String> productDynamicFields;
     private List<String> productSizes;
 
     // Default constructor

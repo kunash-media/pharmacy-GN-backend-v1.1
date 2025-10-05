@@ -24,6 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 @Service
 @Transactional
 public class OrderServiceImpl implements OrderService {
@@ -43,21 +44,44 @@ public class OrderServiceImpl implements OrderService {
         this.userRepository = userRepository;
     }
 
+
     @Override
     public OrderResponseDto createOrder(OrderRequestDto orderRequestDto) {
+
         logger.info("Creating new order");
+
         OrderEntity orderEntity = new OrderEntity();
+
         UserEntity user = userRepository.findById(orderRequestDto.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + orderRequestDto.getUserId()));
         orderEntity.setUser(user);
-        orderEntity.setOrderDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm a")));
 
-        // FIX: Ensure this is on a new line and properly called
+        orderEntity.setOrderDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm a")));
         mapOrderFields(orderRequestDto, orderEntity);
 
         OrderEntity savedEntity = orderRepository.save(orderEntity);
 
+        // NEW FIX : Deduct product quantities
         if (orderRequestDto.getOrderItems() != null && !orderRequestDto.getOrderItems().isEmpty()) {
+            for (OrderItemDto itemDto : orderRequestDto.getOrderItems()) {
+                if (itemDto.getProductId() != null) {
+                    ProductEntity product = productRepository.findById(itemDto.getProductId())
+                            .orElseThrow(() -> new RuntimeException("Product not found with ID: " + itemDto.getProductId()));
+
+                    Integer currentStockQuantity = product.getProductQuantity();
+                    if (currentStockQuantity < itemDto.getQuantity()) {
+                        throw new RuntimeException("Insufficient stock for product ID: " + itemDto.getProductId() +
+                                ". Available: " + currentStockQuantity + ", Required: " + itemDto.getQuantity());
+                    }
+
+                    Integer newStock = currentStockQuantity - itemDto.getQuantity();
+                    product.setProductQuantity(newStock);
+                    productRepository.save(product);
+                    logger.info("Deducted {} units from product ID: {}. New stock: {}",
+                            itemDto.getQuantity(), product.getProductId(), newStock);
+                }
+            }
+            // Existing code continues...
             List<OrderItemEntity> orderItems = orderRequestDto.getOrderItems().stream()
                     .map(itemDto -> createOrderItemEntity(itemDto, savedEntity))
                     .collect(Collectors.toList());
@@ -65,10 +89,10 @@ public class OrderServiceImpl implements OrderService {
             orderItemRepository.saveAll(orderItems);
             savedEntity.setOrderItems(orderItems);
         }
-
         logger.info("Order created with ID: {}", savedEntity.getOrderId());
         return mapToResponseDto(savedEntity);
     }
+
 
     @Override
     public OrderResponseDto getOrderById(Long orderId) {
@@ -278,5 +302,50 @@ public class OrderServiceImpl implements OrderService {
         }
 
         return responseDto;
+    }
+
+
+    //=============== Cancel Order with Restore Product Quantity ================//
+
+    @Override
+    public OrderResponseDto cancelOrder(Long orderId) {
+        logger.info("Cancelling order with ID: {}", orderId);
+
+        OrderEntity orderEntity = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found with ID: " + orderId));
+
+        // Check if order can be cancelled
+        if ("CANCELLED".equals(orderEntity.getOrderStatus())) {
+            throw new RuntimeException("Order is already cancelled");
+        }
+
+        if ("DELIVERED".equals(orderEntity.getOrderStatus())) {
+            throw new RuntimeException("Cannot cancel delivered order");
+        }
+
+        // Restore product quantities
+        if (orderEntity.getOrderItems() != null) {
+
+            for (OrderItemEntity item : orderEntity.getOrderItems()) {
+                if (item.getProduct() != null) {
+
+                    ProductEntity product = item.getProduct();
+                    Integer currentStockQuantity = product.getProductQuantity();
+                    Integer restoredStock = currentStockQuantity + item.getQuantity();
+                    product.setProductQuantity(restoredStock);
+
+                    productRepository.save(product);
+                    logger.info("Restored {} units to product ID: {}. New stock: {}",
+                            item.getQuantity(), product.getProductId(), restoredStock);
+                }
+            }
+        }
+
+        // Update order status to CANCELLED
+        orderEntity.setOrderStatus("CANCELLED");
+        OrderEntity cancelledOrder = orderRepository.save(orderEntity);
+
+        logger.info("Order cancelled successfully with ID: {}", orderId);
+        return mapToResponseDto(cancelledOrder);
     }
 }

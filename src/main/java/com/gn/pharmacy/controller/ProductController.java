@@ -1,6 +1,7 @@
 package com.gn.pharmacy.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gn.pharmacy.dto.request.ProductRequestDto;
+import com.gn.pharmacy.dto.response.BulkUploadResponse;
 import com.gn.pharmacy.dto.response.ProductResponseDto;
 import com.gn.pharmacy.entity.ProductEntity;
 import com.gn.pharmacy.repository.ProductRepository;
@@ -163,5 +164,18 @@ public class ProductController {
         }
         log.warn("Sub image {} not found for product ID: {}", index, productId);
         return ResponseEntity.notFound().build();
+    }
+
+
+    @PostMapping("/bulk-products-upload")
+    public ResponseEntity<BulkUploadResponse> bulkUploadProducts(
+            @RequestPart(value = "excelFile") MultipartFile excelFile,
+            @RequestPart(value = "productImages") List<MultipartFile> images) throws Exception {
+
+        log.info("Request received for bulk product upload");
+        BulkUploadResponse response = productService.bulkCreateProducts(excelFile, images);
+
+        log.info("Bulk upload completed: {} products uploaded, {} skipped", response.getUploadedCount(), response.getSkippedCount());
+        return ResponseEntity.ok(response);
     }
 }

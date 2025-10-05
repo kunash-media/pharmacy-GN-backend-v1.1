@@ -20,14 +20,14 @@ public class WishlistServiceImpl implements WishlistService {
     private WishlistRepository wishlistRepository;
 
     // Initialize dummy data
-    @PostConstruct
-    public void init() {
-        List<WishlistEntity> dummyData = new ArrayList<>();
-        dummyData.add(new WishlistEntity(1L, 101L));
-        dummyData.add(new WishlistEntity(1L, 102L));
-        dummyData.add(new WishlistEntity(2L, 103L));
-        wishlistRepository.saveAll(dummyData);
-    }
+//    @PostConstruct
+//    public void init() {
+//        List<WishlistEntity> dummyData = new ArrayList<>();
+//        dummyData.add(new WishlistEntity(1L, 101L));
+//        dummyData.add(new WishlistEntity(1L, 102L));
+//        dummyData.add(new WishlistEntity(2L, 103L));
+//        wishlistRepository.saveAll(dummyData);
+//    }
 
     @Override
     public WishlistResponseDto addToWishlist(WishlistRequestDto requestDto) {

@@ -13,5 +13,7 @@ public interface OrderService {
     OrderResponseDto updateOrder(Long orderId, OrderRequestDto orderRequestDto);
     OrderResponseDto patchOrder(Long orderId, OrderRequestDto orderRequestDto);
     void deleteOrder(Long orderId);
+
+    OrderResponseDto cancelOrder(Long orderId);
 }
 

@@ -1,17 +1,26 @@
 package com.gn.pharmacy.service.serviceImpl;
 import com.gn.pharmacy.dto.request.ProductRequestDto;
+import com.gn.pharmacy.dto.response.BulkUploadResponse;
 import com.gn.pharmacy.dto.response.ProductResponseDto;
 import com.gn.pharmacy.entity.ProductEntity;
 import com.gn.pharmacy.repository.ProductRepository;
 import com.gn.pharmacy.service.ProductService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.InputStream;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -219,4 +228,220 @@ public class ProductServiceImpl implements ProductService {
 
         return responseDto;
     }
+
+    //=================== bulk product handling api ======================//
+    @Override
+    public BulkUploadResponse bulkCreateProducts(MultipartFile excelFile, List<MultipartFile> images) throws Exception {
+        log.debug("Starting bulk product creation from Excel");
+
+        Map<String, MultipartFile> imageMap = new HashMap<>();
+        if (images != null) {
+            for (MultipartFile image : images) {
+                String filename = image.getOriginalFilename();
+                if (filename != null) {
+                    imageMap.put(filename, image);
+                }
+            }
+        }
+
+        int uploadedCount = 0;
+        int skippedCount = 0;
+        List<String> skippedReasons = new ArrayList<>();
+
+        try (InputStream is = excelFile.getInputStream();
+             Workbook workbook = new XSSFWorkbook(is)) {
+
+            Sheet sheet = workbook.getSheetAt(0);
+            Iterator<Row> rowIterator = sheet.iterator();
+
+            // Skip header row
+            if (rowIterator.hasNext()) {
+                rowIterator.next();
+            }
+
+            while (rowIterator.hasNext()) {
+                Row row = rowIterator.next();
+                String productName = getCellValue(row.getCell(0));
+
+                // Check for duplicate by name (add null/empty check)
+                if (productName == null || productName.trim().isEmpty()) {
+                    skippedCount++;
+                    skippedReasons.add("Empty or missing product name in row " + (row.getRowNum() + 1));
+                    continue;
+                }
+
+                if (productRepository.existsByProductName(productName)) {
+                    skippedCount++;
+                    skippedReasons.add("Duplicate product name: " + productName);
+                    continue;
+                }
+
+                ProductRequestDto dto = new ProductRequestDto();
+                dto.setProductName(productName);
+                dto.setProductCategory(getCellValue(row.getCell(1)));
+                dto.setProductSubCategory(getCellValue(row.getCell(2)));
+                dto.setProductPrice(new BigDecimal(getCellValue(row.getCell(3))));  // Handles "120.0" fine
+
+                // UPDATED: Safe integer parsing for old price (optional, default to null if invalid)
+                String oldPriceStr = getCellValue(row.getCell(4));
+                if (!oldPriceStr.trim().isEmpty()) {
+                    try {
+                        dto.setProductOldPrice(new BigDecimal(oldPriceStr));
+                    } catch (NumberFormatException e) {
+                        log.warn("Invalid old price for product {}: {}", productName, oldPriceStr);
+                        // Skip or set null; here we continue without skipping product
+                    }
+                }
+
+                // UPDATED: Use getIntegerCellValue for stock
+                Integer stock = getIntegerCellValue(row.getCell(5));
+                if (stock == null) {
+                    skippedCount++;
+                    skippedReasons.add("Invalid or missing stock for product: " + productName);
+                    continue;
+                }
+                dto.setProductStock(stock);
+
+                dto.setProductStatus(getCellValue(row.getCell(6)));
+                dto.setProductDescription(getCellValue(row.getCell(7)));
+
+                // UPDATED: Use getIntegerCellValue for quantity
+                Integer quantity = getIntegerCellValue(row.getCell(8));
+                if (quantity == null) {
+                    skippedCount++;
+                    skippedReasons.add("Invalid or missing quantity for product: " + productName);
+                    continue;
+                }
+                dto.setProductQuantity(quantity);
+
+                // Main image (unchanged)
+                String mainImageFilename = getCellValue(row.getCell(9));
+                if (mainImageFilename != null && !mainImageFilename.trim().isEmpty()) {  // Added trim
+                    MultipartFile mainImage = imageMap.get(mainImageFilename.trim());
+                    if (mainImage != null) {
+                        dto.setProductMainImage(mainImage);
+                    } else {
+                        skippedCount++;
+                        skippedReasons.add("Missing main image for product: " + productName + " (" + mainImageFilename + ")");
+                        continue;
+                    }
+                } else {
+                    log.warn("No main image specified for product: {}", productName);  // Optional: Allow upload without image
+                    // If main image is required, add: continue; here to skip
+                }
+
+                // Sub images (comma-separated filenames) - minor fix: handle empty after trim
+                String subImagesStr = getCellValue(row.getCell(10));
+                List<MultipartFile> subImageFiles = new ArrayList<>();
+                if (subImagesStr != null && !subImagesStr.trim().isEmpty()) {
+                    String[] subFilenames = subImagesStr.split(",");
+                    boolean hasMissingSub = false;
+                    for (String subFilename : subFilenames) {
+                        subFilename = subFilename.trim();
+                        if (subFilename.isEmpty()) continue;  // Skip empty
+                        MultipartFile subImage = imageMap.get(subFilename);
+                        if (subImage != null) {
+                            subImageFiles.add(subImage);
+                        } else {
+                            hasMissingSub = true;
+                            skippedReasons.add("Missing sub image for product: " + productName + " (" + subFilename + ")");
+                        }
+                    }
+                    if (hasMissingSub) {
+                        skippedCount++;  // Skip whole product if any sub-image missing
+                        continue;
+                    }
+                }
+                dto.setProductSubImages(subImageFiles);
+
+                // Dynamic fields (unchanged)
+                String dynamicFieldsStr = getCellValue(row.getCell(11));
+                Map<String, String> dynamicFields = new HashMap<>();
+                if (dynamicFieldsStr != null && !dynamicFieldsStr.isEmpty()) {
+                    String[] pairs = dynamicFieldsStr.split(",");
+                    for (String pair : pairs) {
+                        String[] kv = pair.split(":");
+                        if (kv.length == 2) {
+                            dynamicFields.put(kv[0].trim(), kv[1].trim());
+                        }
+                    }
+                }
+                dto.setProductDynamicFields(dynamicFields);
+
+                // Sizes (comma-separated) - minor fix: handle empty
+                String sizesStr = getCellValue(row.getCell(12));
+                List<String> sizes = new ArrayList<>();
+                if (sizesStr != null && !sizesStr.trim().isEmpty()) {
+                    sizes = Arrays.stream(sizesStr.split(","))
+                            .map(String::trim)
+                            .filter(s -> !s.isEmpty())  // Skip empty sizes
+                            .collect(Collectors.toList());
+                }
+                dto.setProductSizes(sizes);
+
+                // Create the product using existing createProduct method
+                try {
+                    createProduct(dto);
+                    uploadedCount++;
+                    log.debug("Successfully uploaded product: {}", productName);
+                } catch (Exception e) {
+                    skippedCount++;
+                    skippedReasons.add("Error creating product: " + productName + " - " + e.getMessage());
+                    log.error("Failed to create product {}: {}", productName, e.getMessage(), e);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error processing Excel file: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to process Excel file: " + e.getMessage(), e);
+        }
+
+        BulkUploadResponse response = new BulkUploadResponse();
+        response.setUploadedCount(uploadedCount);
+        response.setSkippedCount(skippedCount);
+        response.setSkippedReasons(skippedReasons);
+
+        log.debug("Bulk creation completed: {} uploaded, {} skipped", uploadedCount, skippedCount);
+        return response;
+    }
+
+    // NEW HELPER METHOD: Add this to ProductServiceImpl.java (handles numeric decimals safely)
+    private Integer getIntegerCellValue(Cell cell) {
+        if (cell == null) return null;
+        try {
+            switch (cell.getCellType()) {
+                case STRING:
+                    String strVal = cell.getStringCellValue().trim();
+                    if (strVal.isEmpty()) return null;
+                    return Integer.parseInt(strVal);
+                case NUMERIC:
+                    double numVal = cell.getNumericCellValue();
+                    if (numVal == Math.floor(numVal)) {  // Check if whole number
+                        return (int) numVal;
+                    } else {
+                        log.warn("Non-integer numeric value found: {}", numVal);
+                        return null;  // Or (int) Math.floor(numVal) if you want to truncate
+                    }
+                case BOOLEAN:
+                    return cell.getBooleanCellValue() ? 1 : 0;
+                default:
+                    return null;
+            }
+        } catch (NumberFormatException e) {
+            log.warn("Failed to parse integer from cell: {}", cell);
+            return null;
+        }
+    }
+
+    // Keep your existing getCellValue for strings/decimals
+    private String getCellValue(Cell cell) {
+        if (cell == null) return "";
+        switch (cell.getCellType()) {
+            case STRING: return cell.getStringCellValue().trim();
+            case NUMERIC: return String.valueOf(cell.getNumericCellValue());  // Keep as-is for BigDecimal
+            case BOOLEAN: return String.valueOf(cell.getBooleanCellValue());
+            default: return "";
+        }
+    }
+
+
 }
