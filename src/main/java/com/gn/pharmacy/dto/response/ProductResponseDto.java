@@ -7,20 +7,20 @@ import java.util.Map;
 
 public class ProductResponseDto {
 
-    private Long productId;                  // UPDATED: from id
-    private String productName;              // UPDATED: from name
-    private String productCategory;          // UPDATED: from category
-    private String productSubCategory;       // UPDATED: from subcategory
-    private BigDecimal productPrice;         // UPDATED: from Double to BigDecimal
-    private BigDecimal productOldPrice;      // ADDED: new field
-    private Integer productStock;            // UPDATED: from stock
-    private String productStatus;            // UPDATED: from status
-    private String productDescription;       // UPDATED: from description
+    private Long productId;
+    private String productName;
+    private String productCategory;
+    private String productSubCategory;
+    private BigDecimal productPrice;
+    private BigDecimal productOldPrice;
+    private String productStock;
+    private String productStatus;
+    private String productDescription;
     private LocalDateTime createdAt;
     private Integer productQuantity;
-    private String productMainImage;         // UPDATED: from mainImage (URL string)
-    private List<String> productSubImages;   // UPDATED: from subImages (URL strings)
-    private Map<String, String> productDynamicFields;  // UPDATED: from dynamicFields
+    private String productMainImage;
+    private List<String> productSubImages;
+    private Map<String, String> productDynamicFields;
 
     private List<String> productSizes;
 
@@ -76,11 +76,11 @@ public class ProductResponseDto {
         this.productOldPrice = productOldPrice;
     }
 
-    public Integer getProductStock() {
+    public String getProductStock() {
         return productStock;
     }
 
-    public void setProductStock(Integer productStock) {
+    public void setProductStock(String productStock) {
         this.productStock = productStock;
     }
 

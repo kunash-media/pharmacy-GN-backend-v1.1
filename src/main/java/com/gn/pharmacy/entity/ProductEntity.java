@@ -32,7 +32,7 @@ public class ProductEntity {
     private BigDecimal productOldPrice;
 
     @Column(name = "product_stock")
-    private Integer productStock;
+    private String productStock;
 
     @Column(name = "product_status")
     private String productStatus;
@@ -70,7 +70,7 @@ public class ProductEntity {
     public ProductEntity(){}
 
     public ProductEntity(Long productId, String productName, String productCategory, String productSubCategory,
-                         BigDecimal productPrice, BigDecimal productOldPrice, Integer productStock,
+                         BigDecimal productPrice, BigDecimal productOldPrice, String productStock,
                          String productStatus, String productDescription, LocalDateTime createdAt,
                          Integer productQuantity, byte[] productMainImage, List<byte[]> productSubImages,
                          Map<String, String> productDynamicFields, List<String> productSizes) {
@@ -142,11 +142,11 @@ public class ProductEntity {
         this.productOldPrice = productOldPrice;
     }
 
-    public Integer getProductStock() {
+    public String getProductStock() {
         return productStock;
     }
 
-    public void setProductStock(Integer productStock) {
+    public void setProductStock(String productStock) {
         this.productStock = productStock;
     }
 

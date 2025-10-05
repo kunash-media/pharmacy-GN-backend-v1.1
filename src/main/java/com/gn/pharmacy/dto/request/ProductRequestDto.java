@@ -13,7 +13,7 @@ public class ProductRequestDto {
     private String productSubCategory;
     private BigDecimal productPrice;
     private BigDecimal productOldPrice;
-    private Integer productStock;
+    private String productStock;
     private String productStatus;
     private String productDescription;
     private Integer productQuantity;
@@ -66,11 +66,11 @@ public class ProductRequestDto {
         this.productOldPrice = productOldPrice;
     }
 
-    public Integer getProductStock() {
+    public String getProductStock() {
         return productStock;
     }
 
-    public void setProductStock(Integer productStock) {
+    public void setProductStock(String productStock) {
         this.productStock = productStock;
     }
 
