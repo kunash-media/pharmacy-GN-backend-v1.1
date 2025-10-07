@@ -14,9 +14,9 @@ import java.util.Optional;
 @Repository
 public interface PrescriptionRepository extends JpaRepository<PrescriptionEntity, Long> {
 
-    Optional<PrescriptionEntity> findByUserUserIdAndPrescriptionId(Long userId, Long prescriptionId);
+    Optional<PrescriptionEntity> findByUserUserIdAndPrescriptionId(Long userId, String prescriptionId);
 
-    Optional<PrescriptionEntity> findByPrescriptionId(Long prescriptionId);
+    Optional<PrescriptionEntity> findByPrescriptionId(String prescriptionId);
 
     Page<PrescriptionEntity> findByUserUserId(Long userId, Pageable pageable);
 

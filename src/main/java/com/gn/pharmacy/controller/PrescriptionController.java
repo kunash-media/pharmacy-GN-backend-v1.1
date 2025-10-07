@@ -36,7 +36,7 @@ public class PrescriptionController {
 
     @GetMapping("/get-by-prescriptionId/{prescriptionId}")
     public ResponseEntity<PrescriptionResponseDTO> getPrescriptionById(
-            @PathVariable Long prescriptionId) {
+            @PathVariable String prescriptionId) {
         log.info("Received get request for prescription ID: {}", prescriptionId);
         PrescriptionResponseDTO response = prescriptionService.getPrescriptionById(prescriptionId);
         return ResponseEntity.ok(response);
@@ -79,7 +79,7 @@ public class PrescriptionController {
 
     @PutMapping(value = "/update-by-prescriptionId/{prescriptionId}", consumes = {"multipart/form-data"})
     public ResponseEntity<PrescriptionResponseDTO> updatePrescription(
-            @PathVariable Long prescriptionId,
+            @PathVariable String prescriptionId,
             @RequestPart("orderData") PrescriptionRequestDTO requestDTO,
             @RequestPart(value = "prescriptionImg", required = false) MultipartFile prescriptionImg,
             @RequestParam Long userId) {
@@ -90,7 +90,7 @@ public class PrescriptionController {
 
     @PatchMapping("/{prescriptionId}/approve")
     public ResponseEntity<PrescriptionResponseDTO> approvePrescription(
-            @PathVariable Long prescriptionId,
+            @PathVariable String prescriptionId,
             @RequestParam Boolean isApproved) {
         log.info("Received approval request for prescription ID: {} with approval: {}", prescriptionId, isApproved);
         PrescriptionResponseDTO response = prescriptionService.updateApprovalStatus(prescriptionId, isApproved);
@@ -99,7 +99,7 @@ public class PrescriptionController {
 
     @PatchMapping("/patch-status/{prescriptionId}")
     public ResponseEntity<PrescriptionResponseDTO> updateOrderStatus(
-            @PathVariable Long prescriptionId,
+            @PathVariable String prescriptionId,
             @RequestParam("status") String status) {
         log.info("Received status update request for prescription ID: {} to status: {}", prescriptionId, status);
         PrescriptionResponseDTO response = prescriptionService.updateOrderStatus(prescriptionId, status);
@@ -107,7 +107,7 @@ public class PrescriptionController {
     }
 
     @PatchMapping("/reject-order-by-status/{prescriptionId}/reject-order")
-    public ResponseEntity<PrescriptionResponseDTO> rejectOrder(@PathVariable Long prescriptionId) {
+    public ResponseEntity<PrescriptionResponseDTO> rejectOrder(@PathVariable String prescriptionId) {
         log.info("Received reject order request for prescription ID: {}", prescriptionId);
         PrescriptionResponseDTO response = prescriptionService.rejectOrder(prescriptionId);
         return ResponseEntity.ok(response);
@@ -115,7 +115,7 @@ public class PrescriptionController {
 
     @GetMapping("/{prescriptionId}/image")
     public ResponseEntity<byte[]> getPrescriptionImage(
-            @PathVariable Long prescriptionId,
+            @PathVariable String prescriptionId,
             @RequestParam Long userId) {
         log.info("Fetching prescription image for ID: {} and userId: {}", prescriptionId, userId);
 
@@ -132,7 +132,7 @@ public class PrescriptionController {
 
     @DeleteMapping("/delete-order-by-prescriptionId/{prescriptionId}")
     public ResponseEntity<String> deletePrescription(
-            @PathVariable Long prescriptionId) {
+            @PathVariable String prescriptionId) {
         log.info("Received delete request for prescription ID: {}", prescriptionId);
         prescriptionService.deletePrescription(prescriptionId);
         return ResponseEntity.status(HttpStatus.OK).body("Order Deleted Successfully!! with id : " + prescriptionId);

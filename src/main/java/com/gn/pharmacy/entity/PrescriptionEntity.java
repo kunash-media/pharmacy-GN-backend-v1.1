@@ -13,8 +13,7 @@ import java.time.LocalDateTime;
 public class PrescriptionEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long prescriptionId;
+    private String prescriptionId;
 
     @Column(name = "first_name", nullable = false)
     private String firstName;
@@ -45,7 +44,6 @@ public class PrescriptionEntity {
     private boolean isApproved;
 
 
-    // Replace the Long userId with ManyToOne relationship
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore  // Prevent infinite recursion in JSON serialization
@@ -65,7 +63,8 @@ public class PrescriptionEntity {
     public PrescriptionEntity() {
     }
 
-    public PrescriptionEntity(Long prescriptionId, String firstName, String lastName,
+
+    public PrescriptionEntity(String prescriptionId, String firstName, String lastName,
                               String mobileNumber, String email, LocalDateTime createdAt,
                               String orderStatus, byte[] prescriptionImg, String paymentMethod,
                               boolean isApproved, UserEntity user) {
@@ -82,11 +81,12 @@ public class PrescriptionEntity {
         this.user = user;
     }
 
-    public Long getPrescriptionId() {
+
+    public String getPrescriptionId() {
         return prescriptionId;
     }
 
-    public void setPrescriptionId(Long prescriptionId) {
+    public void setPrescriptionId(String prescriptionId) {
         this.prescriptionId = prescriptionId;
     }
 

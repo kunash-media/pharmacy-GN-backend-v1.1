@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 public class PrescriptionResponseDTO {
 
-    private Long prescriptionId;
+    private String prescriptionId; // Changed from Long
     private String firstName;
     private String lastName;
     private String mobileNumber;
@@ -14,15 +14,23 @@ public class PrescriptionResponseDTO {
     private String orderStatus;
     private String imageUrl;
     private String paymentMethod;
-    private Boolean isApproved;
+    private boolean isApproved;
     private Long userId;
 
-    public Long getPrescriptionId() {
+    public String getPrescriptionId() {
         return prescriptionId;
     }
 
-    public void setPrescriptionId(Long prescriptionId) {
+    public void setPrescriptionId(String prescriptionId) {
         this.prescriptionId = prescriptionId;
+    }
+
+    public boolean isApproved() {
+        return isApproved;
+    }
+
+    public void setApproved(boolean approved) {
+        isApproved = approved;
     }
 
     public String getFirstName() {

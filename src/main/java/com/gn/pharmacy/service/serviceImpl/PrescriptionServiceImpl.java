@@ -1,6 +1,5 @@
 package com.gn.pharmacy.service.serviceImpl;
 
-
 import com.gn.pharmacy.dto.request.PrescriptionRequestDTO;
 import com.gn.pharmacy.dto.response.PrescriptionResponseDTO;
 import com.gn.pharmacy.entity.PrescriptionEntity;
@@ -18,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
 @Service
@@ -54,6 +54,11 @@ public class PrescriptionServiceImpl implements PrescriptionService {
             mapToEntity(requestDTO, entity);
             entity.setUser(user);
 
+            // Generate unique prescriptionId: RX + 5 random digits
+            String generatedId = generateUniquePrescriptionId();
+            entity.setPrescriptionId(generatedId);
+            log.info("Generated unique prescriptionId: {}", generatedId);
+
             byte[] imageBytes = convertToByteArray(imageFile);
             if (imageBytes != null) {
                 log.info("Converted image to byte array: {} bytes", imageBytes.length);
@@ -70,7 +75,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     }
 
     @Override
-    public PrescriptionResponseDTO getPrescriptionById(Long prescriptionId) {
+    public PrescriptionResponseDTO getPrescriptionById(String prescriptionId) {
         log.info("Fetching prescription ID: {}", prescriptionId);
         PrescriptionEntity entity = prescriptionRepository.findByPrescriptionId(prescriptionId)
                 .orElseThrow(() -> new RuntimeException("Prescription not found for ID: " + prescriptionId));
@@ -125,7 +130,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     @Transactional
-    public PrescriptionResponseDTO updatePrescription(Long prescriptionId, PrescriptionRequestDTO requestDTO, MultipartFile imageFile, Long userId) {
+    public PrescriptionResponseDTO updatePrescription(String prescriptionId, PrescriptionRequestDTO requestDTO, MultipartFile imageFile, Long userId) {
         log.info("Updating prescription ID: {} for userId: {}", prescriptionId, userId);
 
         PrescriptionEntity entity = prescriptionRepository.findByUserUserIdAndPrescriptionId(userId, prescriptionId)
@@ -150,10 +155,10 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     @Transactional
-    public PrescriptionResponseDTO updateApprovalStatus(Long prescriptionId, Boolean isApproved) {
+    public PrescriptionResponseDTO updateApprovalStatus(String prescriptionId, Boolean isApproved) {
         log.info("Updating approval status for prescription ID: {} to {}", prescriptionId, isApproved);
 
-        PrescriptionEntity entity = prescriptionRepository.findById(prescriptionId)
+        PrescriptionEntity entity = prescriptionRepository.findByPrescriptionId(prescriptionId)
                 .orElseThrow(() -> new RuntimeException("Prescription not found with ID: " + prescriptionId));
 
         entity.setApproved(isApproved);
@@ -165,10 +170,10 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     @Transactional
-    public PrescriptionResponseDTO updateOrderStatus(Long prescriptionId, String status) {
+    public PrescriptionResponseDTO updateOrderStatus(String prescriptionId, String status) {
         log.info("Updating order status for prescription ID: {} to {}", prescriptionId, status);
 
-        PrescriptionEntity entity = prescriptionRepository.findById(prescriptionId)
+        PrescriptionEntity entity = prescriptionRepository.findByPrescriptionId(prescriptionId)
                 .orElseThrow(() -> new RuntimeException("Prescription not found with ID: " + prescriptionId));
 
         entity.setOrderStatus(status);
@@ -180,10 +185,10 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     @Transactional
-    public PrescriptionResponseDTO rejectOrder(Long prescriptionId) {
+    public PrescriptionResponseDTO rejectOrder(String prescriptionId) {
         log.info("Rejecting order for prescription ID: {}", prescriptionId);
 
-        PrescriptionEntity entity = prescriptionRepository.findById(prescriptionId)
+        PrescriptionEntity entity = prescriptionRepository.findByPrescriptionId(prescriptionId)
                 .orElseThrow(() -> new RuntimeException("Prescription not found with ID: " + prescriptionId));
 
         entity.setOrderStatus("REJECTED");
@@ -195,7 +200,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     }
 
     @Override
-    public byte[] getPrescriptionImage(Long prescriptionId, Long userId) {
+    public byte[] getPrescriptionImage(String prescriptionId, Long userId) {
         log.info("Fetching prescription image for ID: {} and userId: {}", prescriptionId, userId);
 
         PrescriptionEntity entity = prescriptionRepository.findByUserUserIdAndPrescriptionId(userId, prescriptionId)
@@ -206,7 +211,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     @Transactional
-    public void deletePrescription(Long prescriptionId) {
+    public void deletePrescription(String prescriptionId) {
         log.info("Deleting prescription ID: {}", prescriptionId);
 
         PrescriptionEntity entity = prescriptionRepository.findByPrescriptionId(prescriptionId)
@@ -243,5 +248,15 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     private byte[] convertToByteArray(MultipartFile file) throws IOException {
         return file != null && !file.isEmpty() ? file.getBytes() : null;
+    }
+
+    // New helper: Generate unique "RX" + 5 random digits
+    private String generateUniquePrescriptionId() {
+        String id;
+        do {
+            int randomNum = ThreadLocalRandom.current().nextInt(100000); // 0 to 99999
+            id = "RX" + String.format("%05d", randomNum); // Pads to 5 digits
+        } while (prescriptionRepository.findByPrescriptionId(id).isPresent()); // Loop until unique
+        return id;
     }
 }

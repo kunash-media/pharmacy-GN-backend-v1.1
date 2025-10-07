@@ -10,7 +10,7 @@ public interface PrescriptionService {
 
     PrescriptionResponseDTO createPrescription(PrescriptionRequestDTO requestDTO, MultipartFile imageFile);
 
-    PrescriptionResponseDTO getPrescriptionById(Long prescriptionId);
+    PrescriptionResponseDTO getPrescriptionById(String prescriptionId);
 
     Page<PrescriptionResponseDTO> getAllPrescriptions(Long userId, int page, int size, String sortBy, String sortDirection);
 
@@ -18,15 +18,15 @@ public interface PrescriptionService {
 
     Page<PrescriptionResponseDTO> getPrescriptionsByStatus(String status, int page, int size, String sortBy, String sortDirection);
 
-    PrescriptionResponseDTO updatePrescription(Long id, PrescriptionRequestDTO requestDTO, MultipartFile imageFile, Long userId);
+    PrescriptionResponseDTO updatePrescription(String prescriptionId, PrescriptionRequestDTO requestDTO, MultipartFile imageFile, Long userId);
 
-    PrescriptionResponseDTO updateApprovalStatus(Long id, Boolean isApproved);
+    PrescriptionResponseDTO updateApprovalStatus(String prescriptionId, Boolean isApproved);
 
-    PrescriptionResponseDTO updateOrderStatus(Long id, String status);
+    PrescriptionResponseDTO updateOrderStatus(String prescriptionId, String status);
 
-    PrescriptionResponseDTO rejectOrder(Long id);
+    PrescriptionResponseDTO rejectOrder(String prescriptionId);
 
-    byte[] getPrescriptionImage(Long id, Long userId);
+    byte[] getPrescriptionImage(String prescriptionId, Long userId);
 
-    void deletePrescription(Long prescriptionId);
+    void deletePrescription(String prescriptionId);
 }

@@ -5,11 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "banners")
+@Table(name = "banners_table")
 public class BannerEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long bannerId;
 
     @Column(name = "page_name")
     private String pageName;
@@ -37,20 +38,29 @@ public class BannerEntity {
     // Default constructor
     public BannerEntity() {}
 
-    // Constructor with parameters
-    public BannerEntity(String pageName, String header, String text) {
+
+    public BannerEntity(Long bannerId, String pageName, String header, String text,
+                        List<byte[]> bannerFileOne, byte[] bannerFileTwo,
+                        byte[] bannerFileThree, byte[] bannerFileFour) {
+        this.bannerId = bannerId;
         this.pageName = pageName;
         this.header = header;
         this.text = text;
+        this.bannerFileOne = bannerFileOne;
+        this.bannerFileTwo = bannerFileTwo;
+        this.bannerFileThree = bannerFileThree;
+        this.bannerFileFour = bannerFileFour;
     }
 
     // Getters and Setters
-    public Long getId() {
-        return id;
+
+
+    public Long getBannerId() {
+        return bannerId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setBannerId(Long bannerId) {
+        this.bannerId = bannerId;
     }
 
     public String getPageName() {
@@ -109,10 +119,12 @@ public class BannerEntity {
         this.bannerFileFour = bannerFileFour;
     }
 
+
+
     @Override
     public String toString() {
         return "BannerEntity{" +
-                "id=" + id +
+                "bannerId=" + bannerId +
                 ", pageName='" + pageName + '\'' +
                 ", header='" + header + '\'' +
                 ", text='" + text + '\'' +
