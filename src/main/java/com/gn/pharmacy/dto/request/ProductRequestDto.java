@@ -3,6 +3,7 @@ package com.gn.pharmacy.dto.request;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +22,16 @@ public class ProductRequestDto {
     private List<MultipartFile> productSubImages;
     private Map<String, String> productDynamicFields;
     private List<String> productSizes;
+
+    // NEW FIELDS
+    private boolean prescriptionRequired;
+    private String brandName;
+    private String mfgDate;
+    private String expDate;
+    private String batchNo;
+    private List<String> benefitsList = new ArrayList<>();
+    private List<String> directionsList = new ArrayList<>();
+
 
     // Default constructor
     public ProductRequestDto() {}
@@ -128,5 +139,61 @@ public class ProductRequestDto {
 
     public void setProductSizes(List<String> productSizes) {
         this.productSizes = productSizes;
+    }
+
+    public boolean isPrescriptionRequired() {
+        return prescriptionRequired;
+    }
+
+    public void setPrescriptionRequired(boolean prescriptionRequired) {
+        this.prescriptionRequired = prescriptionRequired;
+    }
+
+    public String getBrandName() {
+        return brandName;
+    }
+
+    public void setBrandName(String brandName) {
+        this.brandName = brandName;
+    }
+
+    public String getMfgDate() {
+        return mfgDate;
+    }
+
+    public void setMfgDate(String mfgDate) {
+        this.mfgDate = mfgDate;
+    }
+
+    public String getExpDate() {
+        return expDate;
+    }
+
+    public void setExpDate(String expDate) {
+        this.expDate = expDate;
+    }
+
+    public String getBatchNo() {
+        return batchNo;
+    }
+
+    public void setBatchNo(String batchNo) {
+        this.batchNo = batchNo;
+    }
+
+    public List<String> getBenefitsList() {
+        return benefitsList;
+    }
+
+    public void setBenefitsList(List<String> benefitsList) {
+        this.benefitsList = benefitsList;
+    }
+
+    public List<String> getDirectionsList() {
+        return directionsList;
+    }
+
+    public void setDirectionsList(List<String> directionsList) {
+        this.directionsList = directionsList;
     }
 }

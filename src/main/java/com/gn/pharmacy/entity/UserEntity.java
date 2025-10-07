@@ -27,6 +27,7 @@ public class UserEntity {
     private String addressCountry;
     private String addressType;
 
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<ShippingAddressEntity> shippingAddresses = new ArrayList<>();

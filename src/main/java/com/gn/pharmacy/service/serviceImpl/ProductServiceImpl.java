@@ -49,6 +49,16 @@ public class ProductServiceImpl implements ProductService {
         entity.setProductDescription(requestDto.getProductDescription());
         entity.setCreatedAt(LocalDateTime.now());
         entity.setProductQuantity(requestDto.getProductQuantity());
+
+        // NEW: Set new fields
+        entity.setPrescriptionRequired(requestDto.isPrescriptionRequired());
+        entity.setBrandName(requestDto.getBrandName());
+        entity.setMfgDate(requestDto.getMfgDate());
+        entity.setExpDate(requestDto.getExpDate());
+        entity.setBatchNo(requestDto.getBatchNo());
+        entity.setBenefitsList(requestDto.getBenefitsList());
+        entity.setDirectionsList(requestDto.getDirectionsList());
+
         entity.setProductMainImage(requestDto.getProductMainImage().getBytes());
 
         List<byte[]> subImages = requestDto.getProductSubImages() != null
@@ -60,10 +70,18 @@ public class ProductServiceImpl implements ProductService {
             }
         }).collect(Collectors.toList())
                 : new ArrayList<>();
-        entity.setProductSubImages(subImages);
-        entity.setProductDynamicFields(requestDto.getProductDynamicFields());
 
-        // ADDED: Set product sizes
+        entity.setProductSubImages(subImages);
+
+        //entity.setProductDynamicFields(requestDto.getProductDynamicFields());
+
+        // In createProduct method (around line with setProductDynamicFields)
+        if (requestDto.getProductDynamicFields() != null) {
+            entity.setProductDynamicFields(requestDto.getProductDynamicFields());
+        } else {
+            entity.setProductDynamicFields(new HashMap<>());  // Optional: Set empty if null
+        }
+
         if (requestDto.getProductSizes() != null) {
             entity.setProductSizes(requestDto.getProductSizes());
         }
@@ -74,11 +92,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductResponseDto getProduct(Long id) {
-        log.debug("Fetching product by ID: {}", id);
-        ProductEntity entity = productRepository.findById(id)
+    public ProductResponseDto getProduct(Long productId) {
+        log.debug("Fetching product by ID: {}", productId);
+        ProductEntity entity = productRepository.findById(productId)
                 .orElseThrow(() -> {
-                    log.error("Product not found with ID: {}", id);
+                    log.error("Product not found with ID: {}", productId);
                     return new RuntimeException("Product not found");
                 });
         return mapToResponseDto(entity);
@@ -94,10 +112,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductResponseDto> getProductsByCategory(String category) {
-        log.debug("Fetching products by category: {}", category);
-        List<ProductEntity> products = productRepository.findByProductCategory(category);
-        log.debug("Found {} products for category: {}", products.size(), category);
+    public List<ProductResponseDto> getProductsByCategory(String productCategory) {
+        log.debug("Fetching products by category: {}", productCategory);
+        List<ProductEntity> products = productRepository.findByProductCategory(productCategory);
+        log.debug("Found {} products for category: {}", products.size(), productCategory);
         return products.stream()
                 .map(this::mapToResponseDto)
                 .collect(Collectors.toList());
@@ -131,6 +149,16 @@ public class ProductServiceImpl implements ProductService {
         entity.setProductStatus(requestDto.getProductStatus());
         entity.setProductDescription(requestDto.getProductDescription());
         entity.setProductQuantity(requestDto.getProductQuantity());
+
+        // NEW: Set new fields
+        entity.setPrescriptionRequired(requestDto.isPrescriptionRequired());
+        entity.setBrandName(requestDto.getBrandName());
+        entity.setMfgDate(requestDto.getMfgDate());
+        entity.setExpDate(requestDto.getExpDate());
+        entity.setBatchNo(requestDto.getBatchNo());
+        entity.setBenefitsList(requestDto.getBenefitsList());
+        entity.setDirectionsList(requestDto.getDirectionsList());
+
         entity.setProductMainImage(requestDto.getProductMainImage().getBytes());
 
         List<byte[]> subImages = requestDto.getProductSubImages() != null
@@ -143,9 +171,14 @@ public class ProductServiceImpl implements ProductService {
         }).collect(Collectors.toList())
                 : new ArrayList<>();
         entity.setProductSubImages(subImages);
-        entity.setProductDynamicFields(requestDto.getProductDynamicFields());
+        //entity.setProductDynamicFields(requestDto.getProductDynamicFields());
 
-        // ADDED: Set product sizes
+        if (requestDto.getProductDynamicFields() != null) {
+            entity.setProductDynamicFields(requestDto.getProductDynamicFields());
+        } else {
+            entity.setProductDynamicFields(new HashMap<>());  // Optional: Set empty if null
+        }
+
         if (requestDto.getProductSizes() != null) {
             entity.setProductSizes(requestDto.getProductSizes());
         }
@@ -174,6 +207,16 @@ public class ProductServiceImpl implements ProductService {
         if (requestDto.getProductStatus() != null) entity.setProductStatus(requestDto.getProductStatus());
         if (requestDto.getProductQuantity() != null) entity.setProductQuantity(requestDto.getProductQuantity());
         if (requestDto.getProductDescription() != null) entity.setProductDescription(requestDto.getProductDescription());
+
+        // NEW: Patch new fields if provided
+        if (requestDto.isPrescriptionRequired()) entity.setPrescriptionRequired(requestDto.isPrescriptionRequired());
+        if (requestDto.getBrandName() != null) entity.setBrandName(requestDto.getBrandName());
+        if (requestDto.getMfgDate() != null) entity.setMfgDate(requestDto.getMfgDate());
+        if (requestDto.getExpDate() != null) entity.setExpDate(requestDto.getExpDate());
+        if (requestDto.getBatchNo() != null) entity.setBatchNo(requestDto.getBatchNo());
+        if (requestDto.getBenefitsList() != null && !requestDto.getBenefitsList().isEmpty()) entity.setBenefitsList(requestDto.getBenefitsList());
+        if (requestDto.getDirectionsList() != null && !requestDto.getDirectionsList().isEmpty()) entity.setDirectionsList(requestDto.getDirectionsList());
+
         if (requestDto.getProductMainImage() != null) entity.setProductMainImage(requestDto.getProductMainImage().getBytes());
         if (requestDto.getProductSubImages() != null) {
             List<byte[]> subImages = requestDto.getProductSubImages().stream().map(file -> {
@@ -187,7 +230,6 @@ public class ProductServiceImpl implements ProductService {
         }
         if (requestDto.getProductDynamicFields() != null) entity.setProductDynamicFields(requestDto.getProductDynamicFields());
 
-        // ADDED: Set product sizes if provided
         if (requestDto.getProductSizes() != null) {
             entity.setProductSizes(requestDto.getProductSizes());
         }
@@ -198,10 +240,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void deleteProduct(Long id) {
-        log.debug("Deleting product with ID: {}", id);
-        productRepository.deleteById(id);
-        log.debug("Product deleted successfully with ID: {}", id);
+    public void deleteProduct(Long productId) {
+        log.debug("Deleting product with ID: {}", productId);
+        productRepository.deleteById(productId);
+        log.debug("Product deleted successfully with ID: {}", productId);
     }
 
     private ProductResponseDto mapToResponseDto(ProductEntity entity) {
@@ -223,8 +265,16 @@ public class ProductServiceImpl implements ProductService {
                 .collect(Collectors.toList()));
         responseDto.setProductDynamicFields(entity.getProductDynamicFields());
 
-        // ADDED: Set product sizes
         responseDto.setProductSizes(entity.getProductSizes());
+
+        // NEW: Map new fields
+        responseDto.setPrescriptionRequired(entity.isPrescriptionRequired());
+        responseDto.setBrandName(entity.getBrandName());
+        responseDto.setMfgDate(entity.getMfgDate());
+        responseDto.setExpDate(entity.getExpDate());
+        responseDto.setBatchNo(entity.getBatchNo());
+        responseDto.setBenefitsList(entity.getBenefitsList());
+        responseDto.setDirectionsList(entity.getDirectionsList());
 
         return responseDto;
     }
@@ -311,9 +361,9 @@ public class ProductServiceImpl implements ProductService {
                     }
                 }
 
-                // Safe integer parsing for stock (required)
+                // Stock as String (required)
                 String stock = getCellValue(row.getCell(5));
-                if (stock == null) {
+                if (stock == null || stock.trim().isEmpty()) {
                     skippedCount++;
                     skippedReasons.add("Invalid or missing stock for product: " + productName);
                     continue;
@@ -331,6 +381,31 @@ public class ProductServiceImpl implements ProductService {
                     continue;
                 }
                 dto.setProductQuantity(quantity);
+
+                // NEW: Parse prescriptionRequired (Column 13: "true"/"false" or "yes"/"no")
+                Boolean prescriptionReq = getBooleanCellValue(row.getCell(13));
+                if (prescriptionReq != null) {
+                    dto.setPrescriptionRequired(prescriptionReq);
+                } else {
+                    log.warn("No prescription required flag for product: {}", productName);
+                    dto.setPrescriptionRequired(false);  // Default
+                }
+
+                // NEW: Brand Name (Column 14, optional String)
+                String brandName = getCellValue(row.getCell(14));
+                dto.setBrandName(brandName);
+
+                // NEW: MFG Date (Column 15, optional String)
+                String mfgDate = getCellValue(row.getCell(15));
+                dto.setMfgDate(mfgDate);
+
+                // NEW: Exp Date (Column 16, optional String)
+                String expDate = getCellValue(row.getCell(16));
+                dto.setExpDate(expDate);
+
+                // NEW: Batch No (Column 17, optional String)
+                String batchNo = getCellValue(row.getCell(17));
+                dto.setBatchNo(batchNo);
 
                 // Main image lookup with extension stripping
                 String mainImageFilename = getCellValue(row.getCell(9));
@@ -406,6 +481,28 @@ public class ProductServiceImpl implements ProductService {
                 }
                 dto.setProductSizes(sizes);
 
+                // NEW: Benefits List (Column 18, comma-separated, optional)
+                String benefitsStr = getCellValue(row.getCell(18));
+                List<String> benefits = new ArrayList<>();
+                if (benefitsStr != null && !benefitsStr.trim().isEmpty()) {
+                    benefits = Arrays.stream(benefitsStr.split(","))
+                            .map(String::trim)
+                            .filter(s -> !s.isEmpty())
+                            .collect(Collectors.toList());
+                }
+                dto.setBenefitsList(benefits);
+
+                // NEW: Directions List (Column 19, comma-separated, optional)
+                String directionsStr = getCellValue(row.getCell(19));
+                List<String> directions = new ArrayList<>();
+                if (directionsStr != null && !directionsStr.trim().isEmpty()) {
+                    directions = Arrays.stream(directionsStr.split(","))
+                            .map(String::trim)
+                            .filter(s -> !s.isEmpty())
+                            .collect(Collectors.toList());
+                }
+                dto.setDirectionsList(directions);
+
                 // Create the product using existing createProduct method
                 try {
                     createProduct(dto);
@@ -459,6 +556,33 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+    // NEW HELPER: For boolean parsing (handles "true"/"false", "yes"/"no", 1/0)
+    private Boolean getBooleanCellValue(Cell cell) {
+        if (cell == null) return null;
+        try {
+            switch (cell.getCellType()) {
+                case STRING:
+                    String strVal = cell.getStringCellValue().trim().toLowerCase();
+                    if (strVal.isEmpty()) return null;
+                    return switch (strVal) {
+                        case "true", "yes", "1" -> true;
+                        case "false", "no", "0" -> false;
+                        default -> null;
+                    };
+                case BOOLEAN:
+                    return cell.getBooleanCellValue();
+                case NUMERIC:
+                    double numVal = cell.getNumericCellValue();
+                    return numVal == 1.0;
+                default:
+                    return null;
+            }
+        } catch (Exception e) {
+            log.warn("Failed to parse boolean from cell: {}", cell);
+            return null;
+        }
+    }
+
     // Helper method: For strings and decimals (trimmed)
     private String getCellValue(Cell cell) {
         if (cell == null) return "";
@@ -469,222 +593,5 @@ public class ProductServiceImpl implements ProductService {
             default: return "";
         }
     }
-
-
-
- //=========== Old Code ==============//
-//    @Override
-//    public BulkUploadResponse bulkCreateProducts(MultipartFile excelFile, List<MultipartFile> images) throws Exception {
-//        log.debug("Starting bulk product creation from Excel");
-//
-//        Map<String, MultipartFile> imageMap = new HashMap<>();
-//        if (images != null) {
-//            for (MultipartFile image : images) {
-//                String filename = image.getOriginalFilename();
-//                if (filename != null) {
-//                    imageMap.put(filename, image);
-//                }
-//            }
-//        }
-//
-//        int uploadedCount = 0;
-//        int skippedCount = 0;
-//        List<String> skippedReasons = new ArrayList<>();
-//
-//        try (InputStream is = excelFile.getInputStream();
-//             Workbook workbook = new XSSFWorkbook(is)) {
-//
-//            Sheet sheet = workbook.getSheetAt(0);
-//            Iterator<Row> rowIterator = sheet.iterator();
-//
-//            // Skip header row
-//            if (rowIterator.hasNext()) {
-//                rowIterator.next();
-//            }
-//
-//            while (rowIterator.hasNext()) {
-//                Row row = rowIterator.next();
-//                String productName = getCellValue(row.getCell(0));
-//
-//                // Check for duplicate by name (add null/empty check)
-//                if (productName == null || productName.trim().isEmpty()) {
-//                    skippedCount++;
-//                    skippedReasons.add("Empty or missing product name in row " + (row.getRowNum() + 1));
-//                    continue;
-//                }
-//
-//                if (productRepository.existsByProductName(productName)) {
-//                    skippedCount++;
-//                    skippedReasons.add("Duplicate product name: " + productName);
-//                    continue;
-//                }
-//
-//                ProductRequestDto dto = new ProductRequestDto();
-//                dto.setProductName(productName);
-//                dto.setProductCategory(getCellValue(row.getCell(1)));
-//                dto.setProductSubCategory(getCellValue(row.getCell(2)));
-//                dto.setProductPrice(new BigDecimal(getCellValue(row.getCell(3))));  // Handles "120.0" fine
-//
-//                // UPDATED: Safe integer parsing for old price (optional, default to null if invalid)
-//                String oldPriceStr = getCellValue(row.getCell(4));
-//                if (!oldPriceStr.trim().isEmpty()) {
-//                    try {
-//                        dto.setProductOldPrice(new BigDecimal(oldPriceStr));
-//                    } catch (NumberFormatException e) {
-//                        log.warn("Invalid old price for product {}: {}", productName, oldPriceStr);
-//                        // Skip or set null; here we continue without skipping product
-//                    }
-//                }
-//
-//                // UPDATED: Use getIntegerCellValue for stock
-//                Integer stock = getIntegerCellValue(row.getCell(5));
-//                if (stock == null) {
-//                    skippedCount++;
-//                    skippedReasons.add("Invalid or missing stock for product: " + productName);
-//                    continue;
-//                }
-//                dto.setProductStock(stock);
-//
-//                dto.setProductStatus(getCellValue(row.getCell(6)));
-//                dto.setProductDescription(getCellValue(row.getCell(7)));
-//
-//                // UPDATED: Use getIntegerCellValue for quantity
-//                Integer quantity = getIntegerCellValue(row.getCell(8));
-//                if (quantity == null) {
-//                    skippedCount++;
-//                    skippedReasons.add("Invalid or missing quantity for product: " + productName);
-//                    continue;
-//                }
-//                dto.setProductQuantity(quantity);
-//
-//                // Main image (unchanged)
-//                String mainImageFilename = getCellValue(row.getCell(9));
-//                if (mainImageFilename != null && !mainImageFilename.trim().isEmpty()) {  // Added trim
-//                    MultipartFile mainImage = imageMap.get(mainImageFilename.trim());
-//                    if (mainImage != null) {
-//                        dto.setProductMainImage(mainImage);
-//                    } else {
-//                        skippedCount++;
-//                        skippedReasons.add("Missing main image for product: " + productName + " (" + mainImageFilename + ")");
-//                        continue;
-//                    }
-//                } else {
-//                    log.warn("No main image specified for product: {}", productName);  // Optional: Allow upload without image
-//                    // If main image is required, add: continue; here to skip
-//                }
-//
-//                // Sub images (comma-separated filenames) - minor fix: handle empty after trim
-//                String subImagesStr = getCellValue(row.getCell(10));
-//                List<MultipartFile> subImageFiles = new ArrayList<>();
-//                if (subImagesStr != null && !subImagesStr.trim().isEmpty()) {
-//                    String[] subFilenames = subImagesStr.split(",");
-//                    boolean hasMissingSub = false;
-//                    for (String subFilename : subFilenames) {
-//                        subFilename = subFilename.trim();
-//                        if (subFilename.isEmpty()) continue;  // Skip empty
-//                        MultipartFile subImage = imageMap.get(subFilename);
-//                        if (subImage != null) {
-//                            subImageFiles.add(subImage);
-//                        } else {
-//                            hasMissingSub = true;
-//                            skippedReasons.add("Missing sub image for product: " + productName + " (" + subFilename + ")");
-//                        }
-//                    }
-//                    if (hasMissingSub) {
-//                        skippedCount++;  // Skip whole product if any sub-image missing
-//                        continue;
-//                    }
-//                }
-//                dto.setProductSubImages(subImageFiles);
-//
-//                // Dynamic fields (unchanged)
-//                String dynamicFieldsStr = getCellValue(row.getCell(11));
-//                Map<String, String> dynamicFields = new HashMap<>();
-//                if (dynamicFieldsStr != null && !dynamicFieldsStr.isEmpty()) {
-//                    String[] pairs = dynamicFieldsStr.split(",");
-//                    for (String pair : pairs) {
-//                        String[] kv = pair.split(":");
-//                        if (kv.length == 2) {
-//                            dynamicFields.put(kv[0].trim(), kv[1].trim());
-//                        }
-//                    }
-//                }
-//                dto.setProductDynamicFields(dynamicFields);
-//
-//                // Sizes (comma-separated) - minor fix: handle empty
-//                String sizesStr = getCellValue(row.getCell(12));
-//                List<String> sizes = new ArrayList<>();
-//                if (sizesStr != null && !sizesStr.trim().isEmpty()) {
-//                    sizes = Arrays.stream(sizesStr.split(","))
-//                            .map(String::trim)
-//                            .filter(s -> !s.isEmpty())  // Skip empty sizes
-//                            .collect(Collectors.toList());
-//                }
-//                dto.setProductSizes(sizes);
-//
-//                // Create the product using existing createProduct method
-//                try {
-//                    createProduct(dto);
-//                    uploadedCount++;
-//                    log.debug("Successfully uploaded product: {}", productName);
-//                } catch (Exception e) {
-//                    skippedCount++;
-//                    skippedReasons.add("Error creating product: " + productName + " - " + e.getMessage());
-//                    log.error("Failed to create product {}: {}", productName, e.getMessage(), e);
-//                }
-//            }
-//        } catch (Exception e) {
-//            log.error("Error processing Excel file: {}", e.getMessage(), e);
-//            throw new RuntimeException("Failed to process Excel file: " + e.getMessage(), e);
-//        }
-//
-//        BulkUploadResponse response = new BulkUploadResponse();
-//        response.setUploadedCount(uploadedCount);
-//        response.setSkippedCount(skippedCount);
-//        response.setSkippedReasons(skippedReasons);
-//
-//        log.debug("Bulk creation completed: {} uploaded, {} skipped", uploadedCount, skippedCount);
-//        return response;
-//    }
-
-    // NEW HELPER METHOD: Add this to ProductServiceImpl.java (handles numeric decimals safely)
-//    private Integer getIntegerCellValue(Cell cell) {
-//        if (cell == null) return null;
-//        try {
-//            switch (cell.getCellType()) {
-//                case STRING:
-//                    String strVal = cell.getStringCellValue().trim();
-//                    if (strVal.isEmpty()) return null;
-//                    return Integer.parseInt(strVal);
-//                case NUMERIC:
-//                    double numVal = cell.getNumericCellValue();
-//                    if (numVal == Math.floor(numVal)) {  // Check if whole number
-//                        return (int) numVal;
-//                    } else {
-//                        log.warn("Non-integer numeric value found: {}", numVal);
-//                        return null;  // Or (int) Math.floor(numVal) if you want to truncate
-//                    }
-//                case BOOLEAN:
-//                    return cell.getBooleanCellValue() ? 1 : 0;
-//                default:
-//                    return null;
-//            }
-//        } catch (NumberFormatException e) {
-//            log.warn("Failed to parse integer from cell: {}", cell);
-//            return null;
-//        }
-//    }
-
-    // Keep your existing getCellValue for strings/decimals
-//    private String getCellValue(Cell cell) {
-//        if (cell == null) return "";
-//        switch (cell.getCellType()) {
-//            case STRING: return cell.getStringCellValue().trim();
-//            case NUMERIC: return String.valueOf(cell.getNumericCellValue());  // Keep as-is for BigDecimal
-//            case BOOLEAN: return String.valueOf(cell.getBooleanCellValue());
-//            default: return "";
-//        }
-//    }
-
 
 }

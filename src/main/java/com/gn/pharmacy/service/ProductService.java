@@ -12,7 +12,7 @@ public interface ProductService {
 
     ProductResponseDto createProduct(ProductRequestDto requestDto) throws Exception;
 
-    ProductResponseDto getProduct(Long id);
+    ProductResponseDto getProduct(Long productId);
 
     // ========== UPDATED: Changed return type to Page ==========
     Page<ProductResponseDto> getAllProducts(int page, int size);
@@ -26,7 +26,7 @@ public interface ProductService {
 
     ProductResponseDto patchProduct(Long id, ProductRequestDto requestDto) throws Exception;
 
-    void deleteProduct(Long id);
+    void deleteProduct(Long productId);
 
     List<ProductResponseDto> getProductsBySubCategory(String subCategory);
 

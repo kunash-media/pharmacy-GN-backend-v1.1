@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -53,11 +55,11 @@ public class ProductController {
         return ResponseEntity.ok(responseDto);
     }
 
-    @GetMapping("/get-product/{id}")
-    public ResponseEntity<ProductResponseDto> getProduct(@PathVariable Long id) {
-        log.info("Request received to get product by ID: {}", id);
-        ProductResponseDto responseDto = productService.getProduct(id);
-        log.info("Product retrieved successfully with ID: {}", id);
+    @GetMapping("/get-product/{productId}")
+    public ResponseEntity<ProductResponseDto> getProduct(@PathVariable Long productId) {
+        log.info("Request received to get product by ID: {}", productId);
+        ProductResponseDto responseDto = productService.getProduct(productId);
+        log.info("Product retrieved successfully with ID: {}", productId);
         return ResponseEntity.ok(responseDto);
     }
 
@@ -73,10 +75,10 @@ public class ProductController {
     }
 
     @GetMapping("/get-by-category/{category}")
-    public ResponseEntity<List<ProductResponseDto>> getProductsByCategory(@PathVariable String category) {
-        log.info("Request received to get products by category: {}", category);
-        List<ProductResponseDto> responseDtos = productService.getProductsByCategory(category);
-        log.info("Retrieved {} products for category: {}", responseDtos.size(), category);
+    public ResponseEntity<List<ProductResponseDto>> getProductsByCategory(@PathVariable String productCategory) {
+        log.info("Request received to get products by category: {}", productCategory);
+        List<ProductResponseDto> responseDtos = productService.getProductsByCategory(productCategory);
+        log.info("Retrieved {} products for category: {}", responseDtos.size(), productCategory);
         return ResponseEntity.ok(responseDtos);
     }
 
@@ -108,14 +110,14 @@ public class ProductController {
         return ResponseEntity.ok(responseDto);
     }
 
-    @PatchMapping("/patch-product/{id}")
+    @PatchMapping("/patch-product/{productId}")
     public ResponseEntity<ProductResponseDto> patchProduct(
-            @PathVariable Long id,
+            @PathVariable Long productId,
             @RequestPart(value = "productData", required = false) String productDataJson,
             @RequestPart(value = "productMainImage", required = false) MultipartFile productMainImage,  // UPDATED: parameter name
             @RequestPart(value = "productSubImages", required = false) List<MultipartFile> productSubImages) throws Exception {  // UPDATED: parameter name
 
-        log.info("Request received to patch product with ID: {}", id);
+        log.info("Request received to patch product with ID: {}", productId);
 
         ProductRequestDto requestDto = new ProductRequestDto();
 
@@ -127,17 +129,17 @@ public class ProductController {
         requestDto.setProductMainImage(productMainImage);  // UPDATED: method name
         requestDto.setProductSubImages(productSubImages);  // UPDATED: method name
 
-        ProductResponseDto responseDto = productService.patchProduct(id, requestDto);
-        log.info("Product patched successfully with ID: {}", id);
+        ProductResponseDto responseDto = productService.patchProduct(productId, requestDto);
+        log.info("Product patched successfully with ID: {}", productId);
         return ResponseEntity.ok(responseDto);
     }
 
-    @DeleteMapping("/delete-product/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
-        log.info("Request received to delete product with ID: {}", id);
-        productService.deleteProduct(id);
-        log.info("Product deleted successfully with ID: {}", id);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping("/delete-product/{productId}")
+    public ResponseEntity<String> deleteProduct(@PathVariable Long productId) {
+        log.info("Request received to delete product with ID: {}", productId);
+        productService.deleteProduct(productId);
+        log.info("Product deleted successfully with ID: {}", productId);
+        return ResponseEntity.status(HttpStatus.OK).body("Product Deleted Successfully!! with ID :" + productId) ;
     }
 
     @GetMapping("/{productId}/image")
@@ -167,7 +169,7 @@ public class ProductController {
     }
 
 
-    @PostMapping("/bulk-products-upload")
+    @PostMapping(value = "/bulk-products-upload")
     public ResponseEntity<BulkUploadResponse> bulkUploadProducts(
             @RequestPart(value = "excelFile") MultipartFile excelFile,
             @RequestPart(value = "productImages") List<MultipartFile> images) throws Exception {
