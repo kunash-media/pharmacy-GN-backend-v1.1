@@ -19,15 +19,6 @@ public class CartItemServiceImpl implements CartItemService {
     @Autowired
     private CartItemRepository cartItemRepository;
 
-    // Initialize dummy data
-//    @PostConstruct
-//    public void init() {
-//        List<CartItemEntity> dummyData = new ArrayList<>();
-//        dummyData.add(new CartItemEntity(1L, 101L, 2));
-//        dummyData.add(new CartItemEntity(1L, 102L, 1));
-//        dummyData.add(new CartItemEntity(2L, 103L, 3));
-//        cartItemRepository.saveAll(dummyData);
-//    }
 
     @Override
     public CartItemResponseDto addToCart(CartItemRequestDto requestDto) {
